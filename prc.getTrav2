@@ -1,0 +1,35 @@
+:'##############################################################:'#    20130917 ejl    get traveler info via sched_getTrav.sh:
+:'@rn ne "1":'Exit:
+::declare process_id(8,.0),  travnum,   d_str:
+::declare out_file(255,*,g), tmp_file(255,*,g), cmd:
+::process_id = @pm:
+::out_file = "/appl/fpmerge/sched_" { process_id { ".pout":
+::' tmp_file = "/appl/fpmerge/fptmp." { process_id:
+:'##############################################################:'#    Post Information:
+::travnum= @px:
+:travnum eq "":goto err:
+:len(travnum) ge "10" or len(travnum) eq "0" 'if len=9, trav, else assume RPN, but RPN search only holds 8 digits (@rn):goto err:
+:len(travnum) eq "9":goto trav:
+:' len(travnum) eq "5"           '9/23/13 ejl lets not limit this length, may not always be 5:goto rpn                        'so assume anything not len=9 could be RPN#:
+::goto err:
+trav:'it's a traveler number::
+::lookup tbom = tbom  k=(travnum)   i=D -nx:
+:not tbom:goto err:
+:tbom(21) ne "":lookup job = JOB  k=(tbom(21))  i=A -nx:
+:job:hf=job(647):
+::d_str = tbom(22) {","{ tbom(32) {","{ hf:
+::goto wrtout:
+rpn:' it's an RPN number::
+::rn(8,.0)=travnum:
+::lookup rtn = rtnproduct  r=(rn)   -n:
+:not rtn:goto err:
+::d_str = rtn(1) {","{ rtn(4) {",,":
+::goto wrtout:
+Err:'##############################################################:d_str = "?,?,?,":
+WrtOut:'##############################################################:'#    Write results output HTML:
+::EXPORT ASCII out = (out_file) r=\n f=,:
+::out(1) = d_str  ;  out(2) = "":
+::write out:
+::close out:
+::sync:
+::End:

@@ -1,0 +1,69 @@
+:'##############################################################:'# 2013-09-18 ejl build schedule's Completed list page:
+:'#                 runs via cgi-bin/sched_complete:'#:
+:@rn ne "1":exit:
+::declare process_id(8,.0); process_id=@pm:
+::declare global type, desc; type=@pw; desc=@px:
+:        '1= full list, 2= only last 3 months:declare version; version=@py:
+:version ne "1"        'anything not explicitly "all" default to short version:version="2":
+::'system "echo" < type <"| mutt -s \"scheduling/complete\" ericl@borisch.com":
+::declare global includeFile:
+::gosub pagehdr:
+::gosub filldat:
+::gosub pageftr:
+::end:
+pagehdr:'build page header::
+::declare pageTitle; pageTitle="Completed ("{desc{")":
+::declare outfile:
+::outfile=getenv("HTML_RESP_FILE"):
+::pg(1,.0,g) = "1":
+::html pg cr outfile ti pageTitle:
+:not html        'cant create file:exit:
+::declare htxt:
+::htxt="<head><Meta HTTP-EQUIV=\"Refresh\" Content=\"300;URL=https//intranet.borisch.local/cgi-bin/sched_complete":
+::htxt=htxt{"?sched="{type{"&desc="{desc{"\"></head>":
+:        'create head section for auto refresh:html pg tx htxt:
+:                        'body:html pg bo:
+:'include menu "header"::
+::includefile="/appl/www/html/scheduling/include/headermenustyle.html"; call "c_incfile":
+:'!! USES DIFFERENT INCLUDE LOGIC PROGRAM:includefile="/appl/www/html/scheduling/include/menu.html"; call "c_incfilePHP":
+::return:
+filldat:' fill data onto page:' only for Completed travs (i.e. they have a Date Out filled in):
+::'first create table:
+:'and first load new style for table (menu header had different style):includefile="/appl/www/html/scheduling/include/datatablestyle.html"; call "c_incfile":
+::includefile="/appl/www/html/scheduling/include/generalstyle.html"; call "c_incfile":
+::declare verlink, vertext:
+::verlink="/cgi-bin/sched_complete?sched="{type{"&desc="{desc{"&version=2":
+:version eq "2"          '90 day version, already here dont link:vertext="<center><h4>Show past 90 days  |  ":
+:version ne "2"        'not 90 day version:vertext="<center><h4>Show <a href="{verlink{">past 90 days</a>  |  ":
+::verlink="/cgi-bin/sched_complete?sched="{type{"&desc="{desc{"&version=1":
+:version eq "2"  '90 day version, so show link for All:vertext=vertext&"<a href="{verlink{">All</a> (may load slowly)</h4></center>":
+:version ne "2"  'no link for All when we're already on it:vertext=vertext&"All (may load slowly)</h4></center>":
+::html pg tx vertext:
+::html pg tx "<center><table class=\"datatable\">":
+::html pg tx "<caption><h1 style='font-size33px'>Completed ("{desc{")</h1></caption>":
+::declare line; line="<tr><th>Assembly</th><th>Traveler/RPN</th><th>Qty</th>":
+::line=line{"<th>Time In</th><th>Time Out</th><th>Turnaround (HM)</th></tr>":
+::html pg tx line:
+::'now look up completed travs:
+:   'type/date-time (recent first)   'was C:lookup schd = scheduling  k=(type)   i=H -ng:
+schdlp:not schd:goto endschd:
+:schd(10) ne type:goto endschd:
+:schd(21) lt (@td-"90") and version ne "1" 'skip old ones if not full report:goto endschd:
+:schd(21) eq ""        'open item, skip:goto nxtschd:
+:'now we have completed items, sorted by date out (most recent first):declare prtline(255,*):
+::declare timein, timeout:
+::declare elapsed; elapsed=mid(schd(31),"1","7") 'drop seconds:
+::timein=mid(schd(12),"1","5"); timeout=mid(schd(22),"1","5"):
+::prtline="<tr><td>"{schd(2){"</td><td>"{schd(1){"</td><td>"{schd(23){"</td><td>"{schd(11) < "@" <timein:
+::prtline = prtline {"</td><td>"{schd(21)<"@"<timeout {"</td><td>"{elapsed{"</td></tr>":
+::html pg tx prtline:
+nxtschd::getnext schd; goto schdlp:
+endschd:::
+:'close table:html pg tx "</table>":
+::return:
+pageftr:'footer::
+::html pg br:
+::html pg tx "<hr><div align=\"center\" style='font-size15px'>Page generated " < @td < @tm <"</div>":
+::html pg bo-:
+::html pg cl:
+::return:

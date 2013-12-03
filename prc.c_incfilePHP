@@ -1,0 +1,30 @@
+:'##############################################################:'# include a file into html:
+:'# !!! FOR PHP stuff -- the way we're doing the output, we can't:'# just copy the php code line by line, it won't insert variable:
+:'# values, just the names as $name etc. so links break:'# So this strips out PHP command and replaces with normal anchor:
+:'# INPUT path to file to include:declare extern includeFile:
+:'# local variable:declare i__line:
+::declare extern type, desc:
+::pg(1,.0,G) = "1":
+i_loop::import ascii incLine = (includeFile) r=\n f=\n:
+:not incLine:close incLine; end:
+::i__line = incLine(1) { "":
+::gosub chkphp:
+::html pg tx i__line:
+::goto i_loop:
+chkphp:'strip php tags::
+::'i realize this is kind of a hack, but haven't found a better way:
+::declare str1; str1="<?php echo $type ?>"        'length=19:
+::declare str2; str2="<?php echo $type_long ?>"   'length=24:
+::declare str1pos(3,.0), str2pos(3,.0):
+::str1pos=instr(i__line,str1):
+:str1pos gt "0":mid(i__line,str1pos,"19")=type:
+::str2pos=instr(i__line,str2):
+:str1pos le "0" or str2pos le "0":return:
+:str2pos gt "0":mid(i__line,str2pos,"24")=desc:
+::declare schedpos(3,.0); schedpos=instr(i__line,"?sched="):
+::declare snip; snip=mid(i__line,schedpos,"20"):
+::declare endpart; endpart = mid(i__line,(instr(i__line,"&desc")),"100"):
+::declare newsnip:
+::newsnip=xlate(snip," ",""):
+::i__line= mid(i__line,"1",schedpos-"1"){newsnip{endpart:
+::return:

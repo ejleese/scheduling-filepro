@@ -1,0 +1,83 @@
+:'##############################################################:'# 2013-09-18 ejl build schedule's Open list page:
+:'#                 runs via cgi-bin/sched_complete:'#:
+:@rn ne "1":exit:
+::declare process_id(8,.0); process_id=@pm:
+::declare global type, desc; type=@pw; desc=@px:
+::declare global includeFile:
+::'declare starttime(8,time):
+::'starttime=@tm:
+::gosub pagehdr:
+::gosub filldat:
+::gosub pageftr:
+::end:
+pagehdr:'build page header::
+::declare pageTitle; pageTitle="Open ("{desc{")":
+::declare outfile:
+::outfile=getenv("HTML_RESP_FILE"):
+::pg(1,.0,g) = "1":
+::html pg cr outfile ti pageTitle:
+:not html        'cant create file:exit:
+:'DEBUG**********:'html pg tx starttime:
+::declare htxt:
+::htxt="<head><Meta HTTP-EQUIV=\"Refresh\" Content=\"60;URL=https//intranet.borisch.local/cgi-bin/sched_open":
+::htxt=htxt{"?sched="{type{"&desc="{desc{"\"></head>":
+:        'create head section for auto refresh:html pg tx htxt:
+:                        'body:html pg bo:
+:'include menu "header"::
+::includefile="/appl/www/html/scheduling/include/headermenustyle.html"; call "c_incfile":
+:'!!! USES DIFFERENT INCLUDE LOGIC FILE:includefile="/appl/www/html/scheduling/include/menu.html"; call "c_incfilePHP":
+::'include javascript needed:
+::html pg tx "<script language=\"JavaScript\" type=\"text/javascript\" src=\"/script/sched_complete.js\"></script>":
+::html pg tx "<script language=\"JavaScript\" type=\"text/javascript\" src=\"/script/sched_reprioritize.js\"></script>":
+::return:
+filldat:' fill data onto page:' only for non-Completed travs (i.e. no Date Out filled in):
+::'first create table:
+:'and first load new style for table (menu header had different style):includefile="/appl/www/html/scheduling/include/datatablestyle.html"; call "c_incfile":
+::includefile="/appl/www/html/scheduling/include/generalstyle.html"; call "c_incfile":
+::includefile="/appl/www/html/scheduling/include/login.html"; call "c_incfile":
+::html pg tx "<br><center><table class=\"datatable\">":
+::html pg tx "<caption><h1 style='font-size33px'>Open ("{desc{")</h1></caption>":
+::declare line; line="<tr><th>Priority</th><th>Assembly</th><th>Traveler/RPN</th><th>Qty</th>":
+::line=line{"<th>Time In</th><th></th></tr>":
+::html pg tx line:
+:                        'already coming out of filepro in correct:declare priority(3,.0,g) 'order, this is just to make user feel good:
+::priority="1":
+::'now look up open travs:
+::'html pg tx "before first scheduling lookup"<@tm:
+:        'type, hot, date in, time in:'lookup schd = scheduling  k=(type)   i=B -ng:
+:        'type, date out, hot, date in, time in:'lookup schd = scheduling  k=(type)   i=F -ng:
+:        'type, priority (assumes closed items have priority wiped):lookup schd = scheduling  k=(type&"1")   i=E -ng:
+schdlp:not schd:goto endschd:
+:schd(10) ne type:goto endschd:
+:schd(5) eq ""           'no priority (ie closed):goto endschd:
+:schd(21) ne ""          'has date out, closed:goto endschd:
+:'schd(21) ne ""        'completed item, skip:'html pg tx "lookup on rec#"<schd(@rn)<"@"<@tm<"<br>";goto nxtschd:
+:'now we have open items, sorted by hot then date in (earliest first):declare prtline(3000,*):
+::declare timein:
+::timein=mid(schd(12),"1","5"):
+::declare loglink:
+::declare thispage;:
+::thispage="/cgi-bin/sched_open?sched="{type{"&desc="{desc:
+:        'clkLogin('show',recnum,type,desc):loglink="<a id='loginLink' href='javascriptclkLogin(\"show\","{schd(@rn){",\""{type{"\",\""{desc{"\");'":
+::'loglink=loglink{"style='display block;'><b>"{priority{"</b></a>":
+::loglink=loglink{"style='background-colortransparent;'><b>"{priority{"</b></a>":
+:schd(4) eq "Y":prtline="<tr><td style='background-color#FF0000'>"{loglink{"</td>":
+:schd(4) ne "Y":prtline="<tr><td>"{loglink{"</td>":
+::prtline=prtline{"<td>"{schd(2){"</td><td>"{schd(1){"</td><td>"{schd(13){"</td><td>"{schd(11)<"@"<timein:
+::declare signofflink;:
+:         'complete(recnum,travnum,type):signofflink="complete("{schd(@rn){",'"{schd(1){"','"{schd(10){"')":
+::'prtline=prtline{"</td><td><b><a href=\"/cgi-bin/sched_open?sched="{type{"&desc="{desc{"\" onclick=\""{signofflink{";\"":
+::prtline=prtline{"</td><td><b><a href="{thispage<" onclick=\""{signofflink{";\"":
+::prtline=prtline{"><span title=\"Sign off this traveler\">Mark as Complete</span></a></b></td></tr>":
+::priority=priority+"1":
+::html pg tx prtline:
+nxtschd::getnext schd; goto schdlp:
+endschd:::
+:'close table:html pg tx "</table>":
+::return:
+pageftr:'footer::
+::html pg br:
+::html pg tx "<hr><div align=\"center\" style='font-size15px'>Page generated " < @td < @tm <"</div>":
+::html pg bo-:
+::html pg cl:
+::return:

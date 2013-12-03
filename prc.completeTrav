@@ -1,0 +1,39 @@
+:'##############################################################:'# 2013-09-20 ejl move traveler to complete list from open list:
+:'#                via sched_completeTrav.sh::
+:@rn ne "1":Exit:
+::declare out_file(255,*,g):
+::declare global startpri(4,.0) 'for setPriority, shifing all remaining items up to fill vacated item slot:
+::declare error:
+::declare process_id(8,.0),  travnum(20,allup), recnum(8,.0), type(3,allup):
+::recnum=@pw; travnum=@px; type=@py:
+::process_id = @pm;:
+::out_file = "/appl/fpmerge/schedcomplete_" { process_id { ".pout":
+:recnum eq "":error="error in recnum param"; goto err:
+:travnum eq "":error="error in travnum param"; goto err:
+:type eq "":error="error in type param"; goto err:
+:'##############################################################:'#    Post Information:
+::lookup schd = scheduling  r=(recnum) -np:
+:not schd:error="can't find rec#"<recnum<"in scheduling file"; goto err:
+:schd(1) ne travnum:error="passed trav# ("{travnum{") does not equal trav# ("{schd(1){") on rec#"<recnum; goto err:
+:schd(21) ne "":error="already signed off"; goto err:
+::schd(21)=@td; schd(22)=mid(@tm,"1","5"); schd(23)=schd(13);schd(24)=""'not impl:
+::declare elapsed, diff(10,hms):
+::diff=schd(22)-schd(12)            '# hours difference:
+otgi:schd(22) ge schd(12)              'out > in time:':
+:otgi:elapsed=((schd(21) - schd(11))*"24") + diff:
+:not otgi:elapsed=((schd(21) - (schd(11)+"1"))*"24") + diff:
+::schd(31)=elapsed:
+::startpri=schd(5):
+::schd(5)=""        'clear priority (keep it off Open list):
+:'REPRIORITIZE ALL REMAINING ITEMS...(below this item):call "setPriority":
+::write schd; close schd; error="success":
+Err:'##############################################################:' skipped record update, just continue...:
+:' need to write error to outfile::
+WrtOut:'##############################################################:'#    Write results to html:
+::'write response to script, will either be 'success' or an error message:
+::EXPORT ASCII out = (out_file) r=\n f=,:
+::out(1) = error ;  out(2) = "":
+::write out:
+::close out:
+::sync:
+::End:

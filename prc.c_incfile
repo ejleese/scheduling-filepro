@@ -1,0 +1,9 @@
+:'##############################################################:'# include a file into html:
+:'# INPUT path to file to include:declare extern includeFile:
+:'# local variable:declare i__line:
+::pg(1,.0,G) = "1":
+i_loop::import ascii incLine = (includeFile) r=\n f=\n:
+:not incLine:close incLine; end:
+::i__line = incLine(1) { "":
+::html pg tx i__line:
+::goto i_loop:

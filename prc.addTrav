@@ -1,0 +1,58 @@
+:'##############################################################:'# 2013-09-17 ejl add traveler to active schedule:
+:'#                via addTrav.php -> sched_addTrav.sh:'#                It looks up all the same info again that was:
+:'#                looked up in getTrav2::
+:'#        in parameters @pm pid (used to create the 'out' file scripts are looking for):'#                       @px trav number:
+:'#                       @py qty in (trav qty or manually entered rpn qty):'#                       @pz schedule type (SRC, TST, SOL, etc):
+:'#        runs from sched_addTrav.sh script as:'#        dreport scheduling -fp addTrav -u -sr 1 -r "$$" -rx "$1" -ry "$2" -rz "$3" >> /dev/null:
+:@rn ne "1":Exit:
+::declare process_id(8,.0),  travnum:
+::declare out_file(255,*,g):
+::declare error:
+::process_id = @pm:
+::declare assynum(20,allup), qtyin(5,.0),  hot(1,yesno):
+::declare travqty(5,.0), type(3,allup):
+::out_file = "/appl/fpmerge/schedsrcadd_" { process_id { ".pout":
+:'##############################################################:'#    Post Information:
+::travnum= @px; qtyin= @py 'for rpns they can enter a different value:
+::type=@pz 'SRC=source, TSD/TSA =test d/a, SOL=Select solder:
+:travnum eq "":error="no traveler #"; goto err:
+:len(travnum) ge "10" or len(travnum) eq "0":error="trav# length error"; goto err:
+:len(travnum) eq "9":goto trav:
+:' len(travnum) eq "5"            'dont assume length 5 forever:goto rpn:
+::error="traveler length invalid"; goto err:
+trav:'it's a traveler number::
+::lookup tbom = tbom  k=(travnum)   i=D -nx:
+:not tbom:error="tbom lookup failure"; goto err:
+::assynum=tbom(22); travqty=tbom(32):
+:tbom(21) ne "":lookup job = JOB  k=(tbom(21)) i=A -nx:
+:job:hot=job(647):
+::goto wrtout:
+rpn:' it's an RPN number::
+::rn(8,.0)=travnum:
+::lookup rtn = rtnproduct  r=(rn)   -n:
+:not rtn:error="rtnproduct lookup failure"; goto err:
+::assynum=rtn(1); travqty=rtn(4):
+::goto wrtout:
+Err:'##############################################################:' do anything? just continue...don't need all fields filled as long as traveler/qty is:
+:' we can assume at this point though that the trav# is valid:' because previous script checked, and a qty was entered:
+WrtOut:'##############################################################:'#    Write results to file and html:
+:'add to file, first make sure it doesn't already exist in:'the active list-currently can tell this by whether there's a sign out date:
+:        'any non blank date prior to launch should work:lookup schd = scheduling  k=(type&travnum&"        ") i=D -nx:
+:not schd        'good, nothing there:goto newschd:
+:schd(21) eq ""          'exists in active list:error="traveler already exists in schedule"; goto wrtout2:
+newschd::lookup schd = scheduling  r=free  -e:
+:not schd:error="can't create new scheduling record"; goto wrtout2:
+::declare shorttime(5,*) 'drop seconds:
+::shorttime=mid(@tm,"1","5"):
+::schd(1)=travnum; schd(2)=assynum; schd(3)=travqty; schd(4)=hot:
+::schd(11)=@td; schd(12)=shorttime; schd(13)=qtyin; schd(14)="" 'clk# not implemented:
+::schd(10)=type:
+:'set priority:declare extern recnum; recnum=schd(@rn); call "setPriority":
+::write schd; close schd; sync; error="success":
+wrtout2::'write response to script, will either be 'success' or an error message:
+::EXPORT ASCII out = (out_file) r=\n f=,:
+::out(1) = error ;  out(2) = "":
+::write out:
+::close out:
+::sync:
+::End:

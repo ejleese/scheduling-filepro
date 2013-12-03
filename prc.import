@@ -1,0 +1,186 @@
+:'##############################################################:'# 2013-10-01  suck a spreadsheet into this file.:
+:'#             caution, needs to know what schedule type it is:'#             populating!:
+:'#             export open and complete tabs to CSV, do not remove columns or rows:'#      ** MUST format columns to general text, to avoid conversion to exponential numbers!:
+:@id ne "ericl" and @id ne "root" and @id ne "filepro":end:
+:@rn ne "1":end:
+::declare path; path="/appl/fpmerge/":
+::cls("1"):
+::showctr("1") "Pulls data from spreadsheet into scheduling file.":
+::showctr("3") "File must be placed in" <path< "and be comma-delimited.":
+::showctr("4") "save the Complete and Open tabs separately, format to General text":
+::declare name(30,lowall), type(4,allup):
+start::input popup name "Filename " default name:
+:@sk eq "BRKY":msgbox "aborting"; exit:
+:name eq "":goto start:
+:exists(path{name) ne "1":msgbox "file not found"<path{name; goto start:
+::declare scrn; scrn="File "< name:
+::show("6","1") scrn:
+::dim types[4]; clear types; declare arraysize(2,.0); arraysize="4":
+::types["1"]="SRC"; types["2"]="TSD"; types["3"]="TSA"; types["4"]="SOL":
+::declare thetypes, showtypes; ct(2,.0)="1":
+::thetypes=""; showtypes="":
+showlp:ct le arraysize:thetypes=thetypes<types[ct]<" "; showtypes=showtypes<types[ct]<", ";ct=ct+"1";goto showlp:
+::input popup type "Schedule Type" < showtypes <"  ":
+:instr(thetypes,type) eq "0":goto start:
+::scrn=scrn<"Schedule"<type:
+::show("6","1") scrn:
+::declare openclosed(2,allup):
+::input popup openclosed "Is this the (C)losed list or (O)pen list?  ":
+:openclosed ne "C" and openclosed ne "O":goto start:
+::scrn=scrn<"Open/Closed"<openclosed:
+::show("6","1") scrn:
+::declare killold(1,yesno):
+::input popup killold "Delete existing" < type< openclosed<"records? Y/N  ":
+:killold ne "Y" and killold ne "N":goto start:
+::scrn=scrn<"Delete Old "<killold:
+::show("6","1") scrn:
+::input popup yn(1,yesno) "Proceed with above options? Y/N ":
+:yn ne "Y":msgbox "aborting";exit:
+:killold eq "Y":gosub delold:
+::declare count(5,.0), priority(4,.0); count="0"; priority="1":
+::foundheader="N":
+nxtimp::import ascii imp=(path{name) r=\n f=,  o="  c=":
+:not imp:msgbox "Import complete; records imported"<count; end:
+:'# find header line ; generic code across types:':
+:'skip blank lines::
+:imp(1){imp(2){imp(3){imp(4) eq ""        'sort of random smattering of fields including trav/rpn:goto nxtimp:
+::declare foundheader, headertxt, thekey:
+otst:type eq "TSD" and openclosed eq "O":headertxt=imp(2):
+otsthed:otst and headertxt eq "Priority":thekey="Priority":
+otsa:type eq "TSA" and openclosed eq "O":headertxt=imp(1):
+otsahed:otsa and headertxt co "ASSEMBLY":thekey="ASSEMBLY":
+osrc:type eq "SRC" and openclosed eq "O":headertxt=imp(1):
+osrched:osrc and headertxt eq "Priority":thekey="Priority":
+osol:type eq "SOL" and openclosed eq "O":headertxt=imp(1):
+osolhed:osol and headertxt eq "Priority":thekey="Priority":
+ctsa:type eq "TSA" and openclosed eq "C":headertxt=imp(1):
+ctsahed:ctsa and headertxt co "ASSEMBLY":thekey="ASSEMBLY":
+ctst:type eq "TSD" and openclosed eq "C":headertxt=imp(1):
+ctsthed:ctst and headertxt eq "RPN":thekey="RPN":
+csrc:type eq "SRC" and openclosed eq "C":headertxt=imp(1):
+csrched:csrc and headertxt eq "Assembly":thekey="Assembly":
+csol:type eq "SOL" and openclosed eq "C":headertxt=imp(1):
+csolhed:csol and headertxt eq "Assembly":thekey="Assembly":
+:ctsthed or ctsahed or csrched or csolhed     'found header line:foundheader="Y"; goto nxtimp:
+:otsthed or otsahed or osrched or osolhed     'found header line:foundheader="Y"; goto nxtimp:
+:headertxt ne thekey and foundheader ne "Y"   'scan for header line:goto nxtimp:
+:'if we're here, foundheader="Y" and headertxt ne thekey, ie real data line:'presumably we are at a real data line now:
+::lookup new = scheduling  r=free  -e:
+:not new 'rut roe scruffy:errorbox "error creating scheduling record, abort!"; end:
+:openclosed eq "O":goto doopen:
+:openclosed eq "C":goto doclos:
+:'can't get here per above openclosed check when first entered::
+doopen:'## handle open lists::
+:type eq "SRC":goto goosrc:
+:type eq "TSD":goto gootst:
+:type eq "TSA":goto gootsa:
+:type eq "SOL":goto goosol:
+::msgbox "ABORT type"<type<"not found in 'doopen' label";end:
+doclos:'handle closed lists::
+:type eq "SRC":goto gocsrc:
+:type eq "TSD":goto goctst:
+:type eq "TSA":goto goctsa:
+:type eq "SOL":goto gocsol:
+::msgbox "ABORT type"<type<"not found in 'doclos' label";end:
+::declare fldassy, fldtrav, fldqty, flddatein, flddateout, fldoper:
+goosrc:'open source:fldassy=imp(2);fldtrav=imp(3);fldqty=imp(4);flddatein=imp(5):
+::gosub addopen:
+::goto nxtimp:
+gootst:'open test:fldassy=imp(4);fldqty=imp(6);flddatein=imp(9):
+:imp(3) ne "":fldtrav=imp(3):
+:imp(5) ne "":fldtrav=imp(5):
+::fldoper=imp(8):
+::gosub addopen:
+::goto nxtimp:
+gootsa:'open test aero:fldassy=imp(1);fldqty=imp(17);flddatein=imp(23):
+::fldtrav=imp(16):
+::gosub addopen:
+::goto nxtimp:
+goosol:'open solder:fldassy=imp(2);fldtrav=imp(3);fldqty=imp(4);flddatein=imp(5):
+::gosub addopen:
+::goto nxtimp:
+gocsrc:'closed source:fldassy=imp(1);fldtrav=imp(2);fldqty=imp(3);flddatein=imp(4);flddateout=imp(5):
+::gosub addclos:
+::goto nxtimp:
+goctst:'closed test:fldassy=imp(2);fldqty=imp(4);flddatein=imp(7);flddateout=imp(8);fldoper=imp(6):
+:imp(1) ne "":fldtrav=imp(1):
+:imp(3) ne "":fldtrav=imp(3):
+::gosub addclos:
+::goto nxtimp:
+goctsa:'closed test aero:fldassy=imp(1);fldqty=imp(21);flddatein=imp(27);flddateout=imp(35);:
+::fldtrav=imp(11):
+::gosub addclos:
+::goto nxtimp:
+gocsol:'closed solder:fldassy=imp(1);fldtrav=imp(2);fldqty=imp(3);flddatein=imp(4);flddateout=imp(5):
+::gosub addclos:
+::goto nxtimp:
+::end:
+addclos::show "adding import record"<count:
+::new(2)=fldassy;new(1)=fldtrav;new(13)=fldqty; new(23)=fldqty:
+::new(10)=type:
+::lookup tbom = tbom  k=(fldassy)   i=D -nx:
+:not tbom:new(3)=fldqty:
+:tbom            'travqty, hotflag:new(3)= tbom(32):
+:tbom:lookup job = JOB  k=(tbom(21))   i=A -nx:
+:job:new(4) = job(647):
+::'calc date/time in / out:
+::declare indate(10,mdyy/),outdate(10,mdyy/),intime(8,time),outtime(8,time):
+::declare inval; inval = ""{flddatein{"":
+::declare space(2,.0); space=instr(inval," "):
+::indate=mid(inval,"1",space):
+::intime=mid(inval,space+"1",len(inval)-space):
+:inval co "PM":intime=intime+"12":
+::inval = ""{flddateout{"":
+::space=instr(inval," "):
+::outdate=mid(inval,"1",space-"1"):
+::outtime=mid(inval,space+"1",len(inval)-space):
+:inval co "PM":outtime=outtime+"12":
+::new(11)=indate; new(12)=intime;new(21)=outdate;new(22)=outtime:
+::declare elapsed; declare diff(10,hms):
+::diff=new(22)-new(12)            '# hours difference:
+ogti:new(22) gt new(12)              'out > in time:':
+:ogti:elapsed=((new(21) - new(11))*"24") + diff:
+:not ogti:elapsed=((new(21) - (new(11)+"1"))*"24") + diff:
+:elapsed lt "0":elapsed = "0":
+::new(31)=elapsed:
+::write new:
+::count=count+"1":
+::return:
+addopen:::
+::show "adding import record"<count:
+::new(2)=fldassy;new(1)=fldtrav;new(13)=fldqty:
+::new(10)=type:
+::lookup tbom = tbom  k=(fldtrav)   i=D -nx:
+:not tbom        'travqty/qtyin:new(3)=fldtrav:
+:tbom            'travqty, hotflag:new(3)= tbom(32):
+:tbom:lookup job = JOB  k=(tbom(21))   i=A -nx:
+:job:new(4) = job(647):
+::'calc date/time in / out:
+::inval = ""{flddatein{"":
+::space=instr(inval," "):
+::indate=mid(inval,"1",space):
+::intime=mid(inval,space+"1",len(inval)-space):
+::new(11)=indate; new(12)=intime:
+::new(5)=priority:
+::write new:
+::count=count+"1"; priority=priority+"1":
+::return:
+delold::input popup cf(1,yesno) "ABOUT TO DELETE SCHEDULE RECORDS! CONTINUE?? Y/N ":
+:cf ne "Y":msgbox "aborted"; end:
+:openclosed eq "O":lookup schd = scheduling  k=(type&"1")   i=E -ng:
+:openclosed eq "C":lookup schd = scheduling  k=(type&"01/01/01")  i=C -ng:
+schdlp:not schd:return:
+:schd(10) ne type:return:
+:schd(5) eq "" and openclosed eq "O":return:
+:openclosed eq "C" and schd(21) eq "":getnext schd; goto schdlp:
+:openclosed eq "O" and schd(21) ne "":getnext schd; goto schdlp:
+::show "deleting scheduling record"<schd(@rn):
+:'kill associated priority log records too:lookup log = sched_prilog  k=(schd(@rn))  i=A -nx:
+loglp:not log:goto delnxt:
+:log(1) ne schd(@rn):goto delnxt:
+::delete log:
+::getnext log; goto loglp:
+delnxt::delete schd:
+::getnext schd; goto schdlp:
+@done::zz=remove(path{name):
+::end:
