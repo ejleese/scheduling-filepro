@@ -28,8 +28,9 @@ pagehdr:'build page header::
 ::includefile="/appl/www/html/scheduling/include/headermenustyle.html"; call "c_incfile":
 :'!!! USES DIFFERENT INCLUDE LOGIC FILE:includefile="/appl/www/html/scheduling/include/menu.html"; call "c_incfilePHP":
 ::'include javascript needed:
-::html pg tx "<script language=\"JavaScript\" type=\"text/javascript\" src=\"/script/sched_complete.js\"></script>":
-::html pg tx "<script language=\"JavaScript\" type=\"text/javascript\" src=\"/script/sched_reprioritize.js\"></script>":
+::declare scrtext;scrtext="<script language=\"JavaScript\" type=\"text/javascript\"":
+::html pg tx scrtext<"src=\"/scheduling/javascript/sched_complete.js\"></script>":
+::html pg tx scrtext<"src=\"/scheduling/javascript/sched_reprioritize.js\"></script>":
 ::declare jqtext:
 ::jqtext="<script>":
 ::jqtext=jqtext{"$(document).ready(function(){":
