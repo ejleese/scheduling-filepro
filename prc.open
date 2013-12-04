@@ -22,7 +22,7 @@ pagehdr:'build page header::
 ::htxt="<Meta HTTP-EQUIV=\"Refresh\" Content=\"60;URL=https//intranet.borisch.local/cgi-bin/sched_open":
 ::htxt=htxt{"?sched="{type{"&desc="{desc{"\">":
 :        'create head section for auto refresh:html pg tx htxt:
-::html pg tx "<script src=\"http//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js\"></script>":
+::html pg tx "<script src=\"/scheduling/javascript/jquery-1.10.2.min.js\"></script>":
 :                        'body:html pg bo:
 :'include menu "header"::
 ::includefile="/appl/www/html/scheduling/include/headermenustyle.html"; call "c_incfile":
@@ -34,7 +34,7 @@ pagehdr:'build page header::
 ::jqtext="<script>":
 ::jqtext=jqtext{"$(document).ready(function(){":
 ::jqtext=jqtext{"$(\"a\").hover(function(){":
-:'first hover arg:jqtext=jqtext&"$(this).parents(\"#line\").css(\"background-color\",\"red\");},":
+:'first hover arg:jqtext=jqtext&"$(this).parents(\"#line\").css(\"background-color\",\"aquamarine\");},":
 :'2nd hover arg:jqtext=jqtext{"function(){$(this).parents(\"#line\").css(\"background-color\",\"white\");});});":
 ::jqtext=jqtext{"</script>":
 ::html pg tx jqtext:
