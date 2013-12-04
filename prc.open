@@ -34,7 +34,7 @@ pagehdr:'build page header::
 ::jqtext="<script>":
 ::jqtext=jqtext{"$(document).ready(function(){":
 ::jqtext=jqtext{"$(\"a\").hover(function(){":
-:'first hover arg:jqtext=jqtext&"$(this).parents(\"#line\").css(\"background-color\",\"aquamarine\");},":
+:'first hover arg:jqtext=jqtext&"$(this).parents(\"#line\").css(\"background-color\",\"red\");},":
 :'2nd hover arg:jqtext=jqtext{"function(){$(this).parents(\"#line\").css(\"background-color\",\"white\");});});":
 ::jqtext=jqtext{"</script>":
 ::html pg tx jqtext:
