@@ -1,5 +1,5 @@
 :'##############################################################:'# 2013-09-18 ejl build schedule's Open list page:
-:'#                 runs via cgi-bin/sched_complete:'#:
+:'#                 runs via cgi-bin/sched_complete:'# 2013-12-03 ejl  add jquery for couple little effects:
 :@rn ne "1":exit:
 ::declare process_id(8,.0); process_id=@pm:
 ::declare global type, desc; type=@pw; desc=@px:
@@ -19,9 +19,10 @@ pagehdr:'build page header::
 :not html        'cant create file:exit:
 :'DEBUG**********:'html pg tx starttime:
 ::declare htxt:
-::htxt="<head><Meta HTTP-EQUIV=\"Refresh\" Content=\"60;URL=https//intranet.borisch.local/cgi-bin/sched_open":
-::htxt=htxt{"?sched="{type{"&desc="{desc{"\"></head>":
+::htxt="<Meta HTTP-EQUIV=\"Refresh\" Content=\"60;URL=https//intranet.borisch.local/cgi-bin/sched_open":
+::htxt=htxt{"?sched="{type{"&desc="{desc{"\">":
 :        'create head section for auto refresh:html pg tx htxt:
+::html pg tx "<script src=\"http//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js\"></script>":
 :                        'body:html pg bo:
 :'include menu "header"::
 ::includefile="/appl/www/html/scheduling/include/headermenustyle.html"; call "c_incfile":
@@ -29,6 +30,14 @@ pagehdr:'build page header::
 ::'include javascript needed:
 ::html pg tx "<script language=\"JavaScript\" type=\"text/javascript\" src=\"/script/sched_complete.js\"></script>":
 ::html pg tx "<script language=\"JavaScript\" type=\"text/javascript\" src=\"/script/sched_reprioritize.js\"></script>":
+::declare jqtext:
+::jqtext="<script>":
+::jqtext=jqtext{"$(document).ready(function(){":
+::jqtext=jqtext{"$(\"a\").hover(function(){":
+:'first hover arg:jqtext=jqtext&"$(this).parents(\"#line\").css(\"background-color\",\"aquamarine\");},":
+:'2nd hover arg:jqtext=jqtext{"function(){$(this).parents(\"#line\").css(\"background-color\",\"white\");});});":
+::jqtext=jqtext{"</script>":
+::html pg tx jqtext:
 ::return:
 filldat:' fill data onto page:' only for non-Completed travs (i.e. no Date Out filled in):
 ::'first create table:
@@ -61,13 +70,13 @@ schdlp:not schd:goto endschd:
 :        'clkLogin('show',recnum,type,desc):loglink="<a id='loginLink' href='javascriptclkLogin(\"show\","{schd(@rn){",\""{type{"\",\""{desc{"\");'":
 ::'loglink=loglink{"style='display block;'><b>"{priority{"</b></a>":
 ::loglink=loglink{"style='background-colortransparent;'><b>"{priority{"</b></a>":
-:schd(4) eq "Y":prtline="<tr><td style='background-color#FF0000'>"{loglink{"</td>":
-:schd(4) ne "Y":prtline="<tr><td>"{loglink{"</td>":
+:schd(4) eq "Y":prtline="<tr id=\"line\"><td style='background-color#FF0000'>"{loglink{"</td>":
+:schd(4) ne "Y":prtline="<tr id=\"line\"><td>"{loglink{"</td>":
 ::prtline=prtline{"<td>"{schd(2){"</td><td>"{schd(1){"</td><td>"{schd(13){"</td><td>"{schd(11)<"@"<timein:
 ::declare signofflink;:
 :         'complete(recnum,travnum,type):signofflink="complete("{schd(@rn){",'"{schd(1){"','"{schd(10){"')":
 ::'prtline=prtline{"</td><td><b><a href=\"/cgi-bin/sched_open?sched="{type{"&desc="{desc{"\" onclick=\""{signofflink{";\"":
-::prtline=prtline{"</td><td><b><a href="{thispage<" onclick=\""{signofflink{";\"":
+::prtline=prtline{"</td><td><b><a href="{thispage<" onclick=\""{signofflink{";\" style='background-colortransparent';":
 ::prtline=prtline{"><span title=\"Sign off this traveler\">Mark as Complete</span></a></b></td></tr>":
 ::priority=priority+"1":
 ::html pg tx prtline:
