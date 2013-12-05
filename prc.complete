@@ -5,7 +5,6 @@
 ::declare global type, desc; type=@pw; desc=@px:
 :        '1= full list, 2= only last 3 months:declare version; version=@py:
 :version ne "1"        'anything not explicitly "all" default to short version:version="2":
-::'system "echo" < type <"| mutt -s \"scheduling/complete\" ericl@borisch.com":
 ::declare global includeFile:
 ::gosub pagehdr:
 ::gosub filldat:
@@ -18,13 +17,10 @@ pagehdr:'build page header::
 ::pg(1,.0,g) = "1":
 ::html pg cr outfile ti pageTitle:
 :not html        'cant create file:exit:
-::declare htxt, loc, refurl:
-::loc=getenv("PFLOC"):
-nogloc:loc eq "NOG":refurl="http//filepro.nogales.borisch.local/cgi-bin/sched_complete":
-:not nogloc:refurl="https//intranet.borisch.local/cgi-bin/sched_complete":
-::htxt="<head><Meta HTTP-EQUIV=\"Refresh\" Content=\"300;URL="{refurl:
-::htxt=htxt{"?sched="{type{"&desc="{desc{"\"></head>":
-:        'create head section for auto refresh:html pg tx htxt:
+::html pg tx "<script type='text/javascript'>":
+:        'auto refresh every 5 minutes:html pg tx "var timer = setInterval('autoRefresh()', 1000*60*5);":
+::html pg tx "function autoRefresh(){self.location.reload(true);}":
+::html pg tx "</script>":
 :                        'body:html pg bo:
 :'include menu "header"::
 ::includefile="/appl/www/html/scheduling/include/headermenustyle.html"; call "c_incfile":
