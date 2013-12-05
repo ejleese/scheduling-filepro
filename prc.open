@@ -18,8 +18,12 @@ pagehdr:'build page header::
 ::html pg cr outfile ti pageTitle:
 :not html        'cant create file:exit:
 :'DEBUG**********:'html pg tx starttime:
-::declare htxt:
-::htxt="<Meta HTTP-EQUIV=\"Refresh\" Content=\"60;URL=https//intranet.borisch.local/cgi-bin/sched_open":
+::declare htxt, refurl, loc:
+::loc=getenv("PFLOC"):
+nogloc:loc eq "NOG":refurl="http//filepro.nogales.borisch.local/cgi-bin/sched_open":
+:not nogloc:refurl="https//intranet.borisch.local/cgi-bin/sched_open":
+::'htxt="<Meta HTTP-EQUIV=\"Refresh\" Content=\"60;URL=https//intranet.borisch.local/cgi-bin/sched_open":
+::htxt="<Meta HTTP-EQUIV=\"Refresh\" Content=\"60;URL="{refurl:
 ::htxt=htxt{"?sched="{type{"&desc="{desc{"\">":
 :        'create head section for auto refresh:html pg tx htxt:
 ::html pg tx "<script src=\"/scheduling/javascript/jquery-1.10.2.min.js\"></script>":
