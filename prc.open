@@ -69,7 +69,7 @@ schdlp:not schd:goto endschd:
 ::declare signofflink;:
 :         'complete(recnum,travnum,type):signofflink="complete("{schd(@rn){",'"{schd(1){"','"{schd(10){"')":
 ::prtline=prtline{"</td><td><b><a href="{thispage<" onclick=\""{signofflink{";\" style='background-colortransparent';":
-::prtline=prtline{"><span title=\"Sign off this traveler\">Mark as Complete</span></a></b></td></tr>":
+::prtline=prtline{"><span title=\"Sign off this traveler\">Complete</span></a></b></td></tr>":
 ::priority=priority+"1":
 ::html pg tx prtline:
 nxtschd::getnext schd; goto schdlp:
