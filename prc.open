@@ -35,7 +35,6 @@ pagehdr:'build page header::
 :'first hover arg:jqtext=jqtext&"$(this).parents(\"#line\").css(\"background-color\",\"aquamarine\");},":
 :'2nd hover arg:jqtext=jqtext{"function(){$(this).parents(\"#line\").css(\"background-color\",\"white\");});});":
 ::jqtext=jqtext{"</script>":
-::html pg tx jqtext:
 ::return:
 filldat:' fill data onto page:' only for non-Completed travs (i.e. no Date Out filled in):
 ::'first create table:
@@ -44,7 +43,8 @@ filldat:' fill data onto page:' only for non-Completed travs (i.e. no Date Out f
 ::includefile="/appl/www/html/scheduling/include/login.html"; call "c_incfile":
 ::html pg tx "<br><center><table class=\"datatable\">":
 ::html pg tx "<caption><h1 style='font-size33px'>Open ("{desc{")</h1></caption>":
-::declare line; line="<tr><th>Priority</th><th>Assembly</th><th>Traveler/RPN</th><th>Qty</th>":
+::declare line; line="<tr><th>Priority</th>":
+::line=line{"<th>Assembly</th><th>Traveler/RPN</th><th>Qty</th>":
 ::line=line{"<th>Time In</th><th></th></tr>":
 ::html pg tx line:
 :                        'already coming out of filepro in correct:declare priority(3,.0,g) 'order, this is just to make user feel good:
@@ -61,7 +61,9 @@ schdlp:not schd:goto endschd:
 ::declare loglink:
 ::declare thispage;:
 ::thispage="/cgi-bin/sched_open?sched="{type{"&desc="{desc:
-:        'clkLogin('show',recnum,type,desc):loglink="<a id='loginLink' href='javascriptclkLogin(\"show\","{schd(@rn){",\""{type{"\",\""{desc{"\");'":
+::hf(1,*)=schd(4):
+:hf ne "Y":hf="N":
+:        'clkLogin('show',recnum,type,desc):loglink="<a class='loginLink' href='javascriptclkLogin(\"show\","{schd(@rn){",\""{type{"\",\""{desc{"\",\""{hf{"\");'":
 ::loglink=loglink{"style='background-colortransparent;'><b>"{priority{"</b></a>":
 :schd(4) eq "Y":prtline="<tr id=\"line\"><td style='background-color#FF0000'>"{loglink{"</td>":
 :schd(4) ne "Y":prtline="<tr id=\"line\"><td>"{loglink{"</td>":
