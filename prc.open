@@ -35,6 +35,7 @@ pagehdr:'build page header::
 :'first hover arg:jqtext=jqtext&"$(this).parents(\"#line\").css(\"background-color\",\"aquamarine\");},":
 :'2nd hover arg:jqtext=jqtext{"function(){$(this).parents(\"#line\").css(\"background-color\",\"white\");});});":
 ::jqtext=jqtext{"</script>":
+::html pg tx jqtext:
 ::return:
 filldat:' fill data onto page:' only for non-Completed travs (i.e. no Date Out filled in):
 ::'first create table:
