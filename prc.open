@@ -68,7 +68,6 @@ schdlp:not schd:goto endschd:
 ::loglink=loglink{"style='background-colortransparent;'><b>"{priority{"</b></a>":
 :schd(4) eq "Y":prtline="<tr id=\"line\"><td style='background-color#FF0000'>"{loglink{"</td>":
 :schd(4) ne "Y":prtline="<tr id=\"line\"><td>"{loglink{"</td>":
-::prtline=prtline{"<td class=\"hot\">"{schd(4){"</td>":
 ::prtline=prtline{"<td>"{schd(2){"</td><td>"{schd(1){"</td><td>"{schd(13){"</td><td>"{schd(11)<"@"<timein:
 ::declare signofflink;:
 :         'complete(recnum,travnum,type):signofflink="complete("{schd(@rn){",'"{schd(1){"','"{schd(10){"')":
