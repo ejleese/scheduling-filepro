@@ -1,29 +1,31 @@
 :'##############################################################:'# 10/2/13 ejl set priority field on a record-called from prc.addTrav:
-:'#                and from prc.open link:'#                Assumes login already verified, and assumes:
+:'#                and prc.login:'#                Assumes login already verified, and assumes:
 :'#                all other records already have a priority:'#                scenarios here:
 :'#                        new record with no priority yet:'#                        old record getting a new priority:
 :'#      Logic    Old record using Priority index for this type,:'#                      change this priority to new and move rest down one:
 :'#                New record if not hot, add to end of priority list:'#                            if hot, set priority to after first non-hot item found in priority list:
 :'#                Closed a Record after removing an item, need:'#                       to shift by -1 all items after it:
-:'#             This program will either be a Call from prc.addTrav:'#             or launched via dreport from cgi-bin/sched_setPrior.sh:
-:'#      ( dreport scheduling -fp setPriority -sr 1 -u -r (pid) -rw (recnum) -rx (newpriority) >> /dev/null:'#:
+:'#             This program will either be a Call from prc.addTrav:'#             or prc.login:
 :@rn ne "1":end:
 ::declare global recnum(8,.0):
-:recnum eq ""    'will already be set if called:recnum=@pw:
-:'doesn't apply if called:declare newpriority(4,.0); newpriority=@px:
-::declare process_id(8,.0); process_id=@pm:
+:' recnum eq ""    'will already be set if called:' recnum=@pw     'no longer applies?:
+:'doesn't apply if called:declare global newpri(4,.0);' newpriority=@px:
+::declare global process_id(8,.0);' process_id=@pm:
 ::declare global userlogin(8,*):
+::declare global hotval(1,*):
 :                               'this is priority of rec just closed:declare extern startpri       'for changing all recs beyond one you just closed:
 :startpri ne "":gosub shiftup; end        'closed out one, move the rest up:
-:'@pw eq ""          'no record number passed:'error="no record# passed"; goto err:
 :recnum eq ""       'no record number passed:error="no record# passed"; goto err:
 ::declare type(3,allup), hot(1,yesno), priority(4,.0):
 :'get values for record being added/moved:lookup schd = scheduling  r=(recnum)  -n:
 :not schd:error = "error in scheduling lookup rec#"<recnum;goto err:
-:schd(5) ne "" and newpriority eq ""        'old rec being moved, but no new priority value passed:error="error no new priority given";goto err:
-:newpriority eq schd(5)        'no change in priority!:end:
+hotsame:(hotval eq "Y" and schd(4) eq "Y") or (hotval ne "Y" and schd(4) ne "Y")        'not hot can be blank or N:':
+:schd(5) ne "" and newpri eq "" and hotsame       'old rec being moved, but no new priority value or hotness passed:error="error no new priority or hotval given";goto err:
 :                           'new recs have no priority, ones being changed already do:type=schd(10); hot=schd(4); priority=schd(5):
 :priority eq ""          'new record being added:goto setnew:
+:newpri eq schd(5) and hotsame  'no change in priority or hotness!:end:
+:not hotsame             'change hot level now:schd(4)=hotval:
+:newpri eq "" and not hotsame        'just changing priority:goto dolog        'just changed, so log, end:
 :                        'else we're reprioritizing:goto reprior:
 setnew:'# set priority on newly added record::
 :hot eq "Y":goto newhot:
@@ -59,12 +61,12 @@ newcold:'set priority on new not hot record::
 ::schd(5)=cold(5)+"1":
 ::end:
 reprior:'# change priority on existing record:'        hot status does not matter here:
-::gosub valnewp        'make sure newpriority is within bounds:
+::gosub valnewp        'make sure newpri is within bounds:
 ::startpri= schd(5):
-:'lookup record with priority = newpriority:'get its record # for use in a minute here:
+:'lookup record with priority = newpri:'get its record # for use in a minute here:
 ::declare targpri(4,.0):
-::targpri=newpriority:
-:newpriority gt schd(5)  'moving down, because of way hole is filled, need to move 1 farther (it slides up to fill hole):targpri=newpriority+"1":
+::targpri=newpri:
+:newpri gt schd(5)  'moving down, because of way hole is filled, need to move 1 farther (it slides up to fill hole):targpri=newpri+"1":
 ::lookup exst = scheduling  k=(type&targpri)    i=E -ng:
 ::schd(5)=targpri:
 :not exst        'nothing found with same priority. add here? assume > 0 and <= highest existing priority:goto repr2:
@@ -89,10 +91,10 @@ nxtsetp::priority=priority+"1":
 dolog:'* LOG THE REPRIORITIZATION info somewhere!:goto logchg:
 ::end:
 valnewp:'make sure new priority is within bounds, reset appropriately::
-:newpriority le "0":newpriority="1":
+:newpri le "0":newpri="1":
 ::lookup max = scheduling  k=(type)   i=G -ng:
-:not max:newpriority="1":
-:newpriority gt max(5):newpriority=max(5)+"1":
+:not max:newpri="1":
+:newpri gt max(5):newpri=max(5)+"1":
 ::return:
 shiftup:'# shift up all remaining items after closing one out::
 :'look up to priority just beyond startpri:'loop thru all same type/has priority, shift all -1 priority:
@@ -108,6 +110,7 @@ logchg:'log the priority change::
 ::lookup log = sched_prilog  r=free  -e:
 ::log(1)=schd(@rn); log(2)=startpri; log(3)=schd(5):
 :'will have to be something other than @id:log(4)=userlogin; log(5)=@td; log(6)=@tm:
+::log(7)=hot;log(8)=hotval:
 ::write log; close log:
 ::error="success"; goto err:
 ::end:
