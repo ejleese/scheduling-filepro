@@ -7,7 +7,7 @@
 ::declare errmsg:
 ::declare global loginClk(4,.0), loginPass(3,*):
 ::loginClk=@py; loginPass=@pz:
-::' system "echo"<@pm<","<@pw<","<@px<","<@py<","<@pz<"| mutt -s login_vars ericl@borisch.com":
+::system "echo \""{@pm{"\" | mutt -s login_vars ericl@borisch.com":
 DoLogin:'##############################################################:'# login:
 ::export ascii htm = ("/appl/fpmerge/schedreprior_"{process_id{".pout") R=\n F=,:
 ::lookup plk = person  K=(loginClk) i=A -nx:
