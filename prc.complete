@@ -21,15 +21,17 @@ pagehdr:'build page header::
 :        'auto refresh every 5 minutes:html pg tx "var timer = setInterval('autoRefresh()', 1000*60*5);":
 ::html pg tx "function autoRefresh(){self.location.reload(true);}":
 ::html pg tx "</script>":
+::html pg tx "<script src=\"/scheduling/javascript/jquery-1.10.2.min.js\"></script>":
+::html pg tx "<script src=\"/scheduling/javascript/jquery.cookie.js\"></script>":
 :                        'body:html pg bo:
 :'include menu "header"::
-::includefile="/appl/www/html/scheduling/include/headermenustyle.html"; call "c_incfile":
+::includefile="/appl/www/html/scheduling/include/headermenustyle.css"; call "c_incfile":
 :'!! USES DIFFERENT INCLUDE LOGIC PROGRAM:includefile="/appl/www/html/scheduling/include/menu.html"; call "c_incfilePHP":
 ::return:
 filldat:' fill data onto page:' only for Completed travs (i.e. they have a Date Out filled in):
 ::'first create table:
 :'and first load new style for table (menu header had different style):includefile="/appl/www/html/scheduling/include/datatablestyle.html"; call "c_incfile":
-::includefile="/appl/www/html/scheduling/include/generalstyle.html"; call "c_incfile":
+::includefile="/appl/www/html/scheduling/include/generalstyle.css"; call "c_incfile":
 ::declare verlink, vertext:
 ::verlink="/cgi-bin/sched_complete?sched="{type{"&desc="{desc{"&version=2":
 :version eq "2"          '90 day version, already here dont link:vertext="<center><h4>Show past 90 days  |  ":

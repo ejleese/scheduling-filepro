@@ -20,9 +20,10 @@ pagehdr:'build page header::
 ::html pg tx "function autoRefresh(){self.location.reload(true);}":
 ::html pg tx "</script>":
 ::html pg tx "<script src=\"/scheduling/javascript/jquery-1.10.2.min.js\"></script>":
+::html pg tx "<script src=\"/scheduling/javascript/jquery.cookie.js\"></script>":
 :                        'body:html pg bo:
 :'include menu "header"::
-::includefile="/appl/www/html/scheduling/include/headermenustyle.html"; call "c_incfile":
+::includefile="/appl/www/html/scheduling/include/headermenustyle.css"; call "c_incfile":
 :'!!! USES DIFFERENT INCLUDE LOGIC FILE:includefile="/appl/www/html/scheduling/include/menu.html"; call "c_incfilePHP":
 ::'include javascript needed:
 ::declare scrtext;scrtext="<script language=\"JavaScript\" type=\"text/javascript\"":
@@ -40,7 +41,7 @@ pagehdr:'build page header::
 filldat:' fill data onto page:' only for non-Completed travs (i.e. no Date Out filled in):
 ::'first create table:
 :'and first load new style for table (menu header had different style):includefile="/appl/www/html/scheduling/include/datatablestyle.html"; call "c_incfile":
-::includefile="/appl/www/html/scheduling/include/generalstyle.html"; call "c_incfile":
+::includefile="/appl/www/html/scheduling/include/generalstyle.css"; call "c_incfile":
 ::includefile="/appl/www/html/scheduling/include/login.html"; call "c_incfile":
 ::html pg tx "<br><center><table class=\"datatable\">":
 ::html pg tx "<caption><h1 style='font-size33px'>Open ("{desc{")</h1></caption>":

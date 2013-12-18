@@ -12,6 +12,12 @@
 ::declare assynum(20,allup), qtyin(5,.0),  hot(1,yesno):
 ::declare travqty(5,.0), type(3,allup):
 ::out_file = "/appl/fpmerge/schedsrcadd_" { process_id { ".pout":
+::declare global h__name; h__name="lang_cookie":
+::declare extern h__val:
+::call "lib/htmlGetCookie":
+::' declare cookies; cookies = getenv("HTTP_COOKIE"):
+::declare cookies; cookies = getenv("SERVER_NAME"):
+::system "echo" < "zz"{cookies{"zz" < " | mutt -s h__val ericl@borisch.com":
 :'##############################################################:'#    Post Information:
 ::travnum= @px; qtyin= @py 'for rpns they can enter a different value:
 ::type=@pz 'SRC=source, TSD/TSA =test d/a, SOL=Select solder:
