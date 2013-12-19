@@ -87,7 +87,8 @@ schdlp:not schd:goto endschd:
 ::prtline=prtline{"</td><td><b><a href="{thispage<" onclick=\""{signofflink{";\" style='background-colortransparent';":
 ::text="Complete":
 :lang eq "SP":text="Completar":
-::prtline=prtline{"><span title=\"Sign off this traveler\">"{text{"</span></a></b></td></tr>":
+::'prtline=prtline{"><span title=\"Sign off this traveler\">"{text{"</span></a></b></td></tr>":
+::prtline=prtline{">"{text{"</a></b></td></tr>":
 ::priority=priority+"1":
 ::html pg tx prtline:
 nxtschd::getnext schd; goto schdlp:
