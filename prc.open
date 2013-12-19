@@ -74,7 +74,7 @@ schdlp:not schd:goto endschd:
 ::timein=mid(schd(12),"1","5"):
 ::declare loglink:
 ::declare thispage;:
-::thispage="/cgi-bin/sched_open?sched="{type{"&desc="{desc:
+::thispage="/scheduling/open.php?sched="{type{"&desc="{desc{"&lang="{lang:
 ::hf(1,*)=schd(4):
 :hf ne "Y":hf="N":
 :        'clkLogin('show',recnum,type,desc):loglink="<a class='loginLink' href='javascriptclkLogin(\"show\","{schd(@rn){",\""{type{"\",\""{desc{"\",\""{hf{"\");'":
