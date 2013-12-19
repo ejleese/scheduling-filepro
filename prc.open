@@ -4,12 +4,15 @@
 ::declare process_id(8,.0); process_id=@pm:
 ::declare global type, desc; type=@pw; desc=@px:
 ::declare global includeFile:
+::declare lang; lang=getenv("LANG"):
+::'system "echo"<lang<"| mutt -s prc.open ericl@borisch.com":
 ::gosub pagehdr:
 ::gosub filldat:
 ::gosub pageftr:
 ::end:
 pagehdr:'build page header::
 ::declare pageTitle; pageTitle="Open ("{desc{")":
+:lang eq "SP":pageTitle="Abierto ("{desc{")":
 ::declare outfile:
 ::outfile=getenv("HTML_RESP_FILE"):
 ::pg(1,.0,g) = "1":
@@ -44,10 +47,19 @@ filldat:' fill data onto page:' only for non-Completed travs (i.e. no Date Out f
 ::includefile="/appl/www/html/scheduling/include/generalstyle.css"; call "c_incfile":
 ::includefile="/appl/www/html/scheduling/include/login.html"; call "c_incfile":
 ::html pg tx "<br><center><table class=\"datatable\">":
-::html pg tx "<caption><h1 style='font-size33px'>Open ("{desc{")</h1></caption>":
-::declare line; line="<tr><th>Priority</th>":
-::line=line{"<th>Assembly</th><th>Traveler/RPN</th><th>Qty</th>":
-::line=line{"<th>Time In</th><th></th></tr>":
+::declare text;text="Open":
+:lang eq "SP":text="Abierto":
+::html pg tx "<caption><h1 style='font-size33px'>"{text<"("{desc{")</h1></caption>":
+::text="Priority":
+:lang eq "SP":text="Prioridad":
+::declare line; line="<tr><th>"{text{"</th>":
+::declare text2, text3:
+::text="Assembly"; text2="Traveler/RPN"; text3="Qty":
+:lang eq "SP":text="Ensamble"; text3="Cantidad":
+::line=line{"<th>"{text{"</th><th>"{text2{"</th><th>"{text3{"</th>":
+::text="Time In":
+:lang eq "SP":text="Tiempo de entrada":
+::line=line{"<th>"{text{"</th><th></th></tr>":
 ::html pg tx line:
 :                        'already coming out of filepro in correct:declare priority(3,.0,g) 'order, this is just to make user feel good:
 ::priority="1":
@@ -73,7 +85,9 @@ schdlp:not schd:goto endschd:
 ::declare signofflink;:
 :         'complete(recnum,travnum,type):signofflink="complete("{schd(@rn){",'"{schd(1){"','"{schd(10){"')":
 ::prtline=prtline{"</td><td><b><a href="{thispage<" onclick=\""{signofflink{";\" style='background-colortransparent';":
-::prtline=prtline{"><span title=\"Sign off this traveler\">Complete</span></a></b></td></tr>":
+::text="Complete":
+:lang eq "SP":text="Completar":
+::prtline=prtline{"><span title=\"Sign off this traveler\">"{text{"</span></a></b></td></tr>":
 ::priority=priority+"1":
 ::html pg tx prtline:
 nxtschd::getnext schd; goto schdlp:
@@ -82,7 +96,9 @@ endschd:::
 ::return:
 pageftr:'footer::
 ::html pg br:
-::html pg tx "<hr><div align=\"center\" style='font-size15px'>Page generated " < @td < @tm <"</div>":
+::text="Page generated":
+:lang eq "SP":text="Pagina generada":
+::html pg tx "<hr><div align=\"center\" style='font-size15px'>"{text{" " < @td < @tm <"</div>":
 ::html pg bo-:
 ::html pg cl:
 ::return:

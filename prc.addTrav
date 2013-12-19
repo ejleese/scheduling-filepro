@@ -12,12 +12,8 @@
 ::declare assynum(20,allup), qtyin(5,.0),  hot(1,yesno):
 ::declare travqty(5,.0), type(3,allup):
 ::out_file = "/appl/fpmerge/schedsrcadd_" { process_id { ".pout":
-::declare global h__name; h__name="lang_cookie":
-::declare extern h__val:
-::call "lib/htmlGetCookie":
-::' declare cookies; cookies = getenv("HTTP_COOKIE"):
-::declare cookies; cookies = getenv("SERVER_NAME"):
-::system "echo" < "zz"{cookies{"zz" < " | mutt -s h__val ericl@borisch.com":
+::declare lang; lang = getenv("LANG"):
+::system "echo" < lang < " | mutt -s h__val ericl@borisch.com":
 :'##############################################################:'#    Post Information:
 ::travnum= @px; qtyin= @py 'for rpns they can enter a different value:
 ::type=@pz 'SRC=source, TSD/TSA =test d/a, SOL=Select solder:
@@ -45,7 +41,10 @@ WrtOut:'##############################################################:'#    Wri
 :'add to file, first make sure it doesn't already exist in:'the active list-currently can tell this by whether there's a sign out date:
 :        'any non blank date prior to launch should work:lookup schd = scheduling  k=(type&travnum&"        ") i=D -nx:
 :not schd        'good, nothing there:goto newschd:
-:schd(21) eq ""          'exists in active list:error="traveler already exists in schedule"; goto wrtout2:
+::declare text:
+::text="traveler already exists in schedule":
+:lang eq "SP":text="el traveler ya existe en el schedule":
+:schd(21) eq ""          'exists in active list:error=text; goto wrtout2:
 newschd::lookup schd = scheduling  r=free  -e:
 :not schd:error="can't create new scheduling record"; goto wrtout2:
 ::declare shorttime(5,*) 'drop seconds:

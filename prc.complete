@@ -5,6 +5,8 @@
 ::declare global type, desc; type=@pw; desc=@px:
 :        '1= full list, 2= only last 3 months:declare version; version=@py:
 :version ne "1"        'anything not explicitly "all" default to short version:version="2":
+::declare lang; lang=getenv("LANG"):
+::' system "echo" < type{desc{version{lang<"| mutt -s prc.complete ericl@borisch.com":
 ::declare global includeFile:
 ::gosub pagehdr:
 ::gosub filldat:
@@ -12,6 +14,7 @@
 ::end:
 pagehdr:'build page header::
 ::declare pageTitle; pageTitle="Completed ("{desc{")":
+:lang eq "SP":pageTitle="Completado ("{desc{")":
 ::declare outfile:
 ::outfile=getenv("HTML_RESP_FILE"):
 ::pg(1,.0,g) = "1":
@@ -33,17 +36,29 @@ filldat:' fill data onto page:' only for Completed travs (i.e. they have a Date 
 :'and first load new style for table (menu header had different style):includefile="/appl/www/html/scheduling/include/datatablestyle.html"; call "c_incfile":
 ::includefile="/appl/www/html/scheduling/include/generalstyle.css"; call "c_incfile":
 ::declare verlink, vertext:
-::verlink="/cgi-bin/sched_complete?sched="{type{"&desc="{desc{"&version=2":
-:version eq "2"          '90 day version, already here dont link:vertext="<center><h4>Show past 90 days  |  ":
-:version ne "2"        'not 90 day version:vertext="<center><h4>Show <a href="{verlink{">past 90 days</a>  |  ":
-::verlink="/cgi-bin/sched_complete?sched="{type{"&desc="{desc{"&version=1":
-:version eq "2"  '90 day version, so show link for All:vertext=vertext&"<a href="{verlink{">All</a> (may load slowly)</h4></center>":
-:version ne "2"  'no link for All when we're already on it:vertext=vertext&"All (may load slowly)</h4></center>":
+::'verlink="/cgi-bin/sched_complete?sched="{type{"&desc="{desc{"&version=2&lang="{lang:
+::verlink="/scheduling/complete.php?sched="{type{"&desc="{desc{"&version=2&lang="{lang:
+::declare text, text2, text3, text4:
+::text4="Show"; text="past 90 days  "; text2= "All";:
+::text3="(may load slowly)":
+:lang eq "SP":text4="Mostrar";text="&uacuteltimos 90 d&iacuteas  "; text2="Todos"; text3="(cargara lentamente)":
+:version eq "2"          '90 day version, already here dont link:vertext="<center><h4>"{text4<text&"  |":
+:version ne "2"        'not 90 day version:vertext="<center><h4>"{text4<"<a href="{verlink{">"{text{"</a>  |  ":
+::'verlink="/cgi-bin/sched_complete?sched="{type{"&desc="{desc{"&version=1&lang="{lang:
+::verlink="/scheduling/complete.php?sched="{type{"&desc="{desc{"&version=1&lang="{lang:
+:version eq "2"  '90 day version, so show link for All:vertext=vertext&"<a href="{verlink{">  "&text2{"</a>"<text3<"</h4></center>":
+:version ne "2"  'no link for All when we're already on it:vertext=vertext&text2<text3<"</h4></center>":
 ::html pg tx vertext:
 ::html pg tx "<center><table class=\"datatable\">":
-::html pg tx "<caption><h1 style='font-size33px'>Completed ("{desc{")</h1></caption>":
-::declare line; line="<tr><th>Assembly</th><th>Traveler/RPN</th><th>Qty</th>":
-::line=line{"<th>Time In</th><th>Time Out</th><th>Turnaround (HM)</th></tr>":
+::text="Completed":
+:lang eq "SP":text="Completado":
+::html pg tx "<caption><h1 style='font-size33px'>"{text<"("{desc{")</h1></caption>":
+::declare text5, text6:
+::text="Assembly"; text2="Traveler/RPN"; text3="Qty";:
+::text4="Time In"; text5="Time Out"; text6="Turnaround (HM)":
+:lang eq "SP":text="Ensamble"; text3="Cantidad";text4="Tiempo de entrada";text5="Tiempo de salida"; text6="Tiempo Terminado":
+::declare line; line="<tr><th>"{text{"</th><th>"{text2{"</th><th>"{text3{"</th>":
+::line=line{"<th>"{text4{"</th><th>"{text5{"</th><th>"{text6{"</th></tr>":
 ::html pg tx line:
 ::'now look up completed travs:
 :   'type/date-time (recent first)   'was C:lookup schd = scheduling  k=(type)   i=H -ng:
@@ -64,7 +79,9 @@ endschd:::
 ::return:
 pageftr:'footer::
 ::html pg br:
-::html pg tx "<hr><div align=\"center\" style='font-size15px'>Page generated " < @td < @tm <"</div>":
+::text="Page generated":
+:lang eq "SP":text="Pagina generada":
+::html pg tx "<hr><div align=\"center\" style='font-size15px'>"{text < @td < @tm <"</div>":
 ::html pg bo-:
 ::html pg cl:
 ::return:

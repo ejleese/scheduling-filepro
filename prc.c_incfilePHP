@@ -26,5 +26,6 @@ chkphp:'strip php tags::
 ::declare endpart; endpart = mid(i__line,(instr(i__line,"&desc")),"100"):
 ::declare newsnip:
 ::newsnip=xlate(snip," ",""):
+::endpart=xlate(endpart," ",""):
 ::i__line= mid(i__line,"1",schedpos-"1"){newsnip{endpart:
 ::return:
