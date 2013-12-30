@@ -13,7 +13,7 @@
 ::declare travqty(5,.0), type(3,allup):
 ::out_file = "/appl/fpmerge/schedsrcadd_" { process_id { ".pout":
 ::declare lang; lang = getenv("LANG"):
-::system "echo" < lang < " | mutt -s h__val ericl@borisch.com":
+::'system "echo" < lang < " | mutt -s h__val ericl@borisch.com":
 :'##############################################################:'#    Post Information:
 ::travnum= @px; qtyin= @py 'for rpns they can enter a different value:
 ::type=@pz 'SRC=source, TSD/TSA =test d/a, SOL=Select solder:
