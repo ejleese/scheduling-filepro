@@ -25,7 +25,7 @@ hotsame:(hotval eq "Y" and schd(4) eq "Y") or (hotval ne "Y" and schd(4) ne "Y")
 :priority eq ""          'new record being added:goto setnew:
 :newpri eq schd(5) and hotsame  'no change in priority or hotness!:end:
 :not hotsame             'change hot level now:schd(4)=hotval:
-:newpri eq "" and not hotsame        'just changing priority:goto dolog        'just changed, so log, end:
+:newpri eq "" and not hotsame        'just changing hotness:goto dolog        'just changed, so log, end:
 :                        'else we're reprioritizing:goto reprior:
 setnew:'# set priority on newly added record::
 :hot eq "Y":goto newhot:
@@ -111,6 +111,7 @@ logchg:'log the priority change::
 ::log(1)=schd(@rn); log(2)=startpri; log(3)=schd(5):
 :'will have to be something other than @id:log(4)=userlogin; log(5)=@td; log(6)=@tm:
 ::log(7)=hot;log(8)=hotval:
+::log(9)=schd(1); log(10)=schd(10):
 ::write log; close log:
 ::error="success"; goto err:
 ::end:
