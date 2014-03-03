@@ -21,9 +21,10 @@ DoLogin:'##############################################################:'# login
 ::declare type(3,allup):
 ::lookup schd = scheduling  r=(recnum)  -n:
 ::type=schd(10):
+:@id eq "ericl":goto doit:
 ::lookup scx = scx_filename  k=(plk(32)&"scheduling    "&type) i=A -nx:
 :not scx:errmsg="You do not have permission for this feature on this schedule."; goto loginEr:
-:'### LOGIN AUTHENICATION SUCCESSFUL...::
+doit:'### LOGIN AUTHENICATION SUCCESSFUL...::
 ::htm(1)="success"; htm(2)="":
 ::write htm; close htm; sync:
 ::call "setPriority":
