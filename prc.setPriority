@@ -16,7 +16,8 @@
 :                               'this is priority of rec just closed:declare extern startpri       'for changing all recs beyond one you just closed:
 :startpri ne "":gosub shiftup; end        'closed out one, move the rest up:
 :recnum eq ""       'no record number passed:error="no record# passed"; goto err:
-::declare type(3,allup), hot(1,yesno), priority(4,.0):
+::declare extern type:
+::declare hot(1,yesno), priority(4,.0):
 :'get values for record being added/moved:lookup schd = scheduling  r=(recnum)  -n:
 :not schd:error = "error in scheduling lookup rec#"<recnum;goto err:
 hotsame:(hotval eq "Y" and schd(4) eq "Y") or (hotval ne "Y" and schd(4) ne "Y")        'not hot can be blank or N:':
@@ -72,7 +73,7 @@ reprior:'# change priority on existing record:'        hot status does not matte
 :not exst        'nothing found with same priority. add here? assume > 0 and <= highest existing priority:goto repr2:
 :exst(10) ne type ' off index so add:goto repr2:
 :exst(5) eq ""        'closed was first hit, so add:goto repr2:
-:        'get highest priority, work back (changing priority and getnexting changes index and we walk on ourselves):lookup exst = scheduling  k=(type&"9999")   i=G -npg:
+:        'get highest priority, work back (else changing priority and getnexting changes index and we walk on ourselves):lookup exst = scheduling  k=(type&"9999")   i=G -npg:
 exstlp:not exst:goto repr2:
 :exst(10) ne type:goto repr2:
 :exst(5) lt schd(5):goto repr2:

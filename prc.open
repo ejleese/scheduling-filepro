@@ -61,8 +61,8 @@ filldat:' fill data onto page:' only for non-Completed travs (i.e. no Date Out f
 :lang eq "SP":text="Tiempo de entrada":
 ::line=line{"<th>"{text{"</th><th></th></tr>":
 ::html pg tx line:
-:                        'already coming out of filepro in correct:declare priority(3,.0,g) 'order, this is just to make user feel good:
-::priority="1":
+:                        'already coming out of filepro in correct:'declare priority(3,.0,g) 'order, this is just to make user feel good:
+:                'NOTE generating the priority on the fly here is pointless now, the records now prioritize themselves:'priority="1":
 ::'now look up open travs:
 :        'type, priority (assumes closed items have priority wiped):lookup schd = scheduling  k=(type&"1")   i=E -ng:
 schdlp:not schd:goto endschd:
@@ -78,7 +78,8 @@ schdlp:not schd:goto endschd:
 ::hf(1,*)=schd(4):
 :hf ne "Y":hf="N":
 :        'clkLogin('show',recnum,type,desc):loglink="<a class='loginLink' href='javascriptclkLogin(\"show\","{schd(@rn){",\""{type{"\",\""{desc{"\",\""{hf{"\");'":
-::loglink=loglink{"style='background-colortransparent;'><b>"{priority{"</b></a>":
+::'loglink=loglink{"style='background-colortransparent;'><b>"{priority{"</b></a>":
+::loglink=loglink{"style='background-colortransparent;'><b>"{schd(5){"</b></a>":
 :schd(4) eq "Y":prtline="<tr id=\"line\"><td style='background-color#FF0000'>"{loglink{"</td>":
 :schd(4) ne "Y":prtline="<tr id=\"line\"><td>"{loglink{"</td>":
 ::prtline=prtline{"<td>"{schd(2){"</td><td>"{schd(1){"</td><td>"{schd(13){"</td><td>"{schd(11)<"@"<timein:
@@ -89,7 +90,7 @@ schdlp:not schd:goto endschd:
 :lang eq "SP":text="Completar":
 ::'prtline=prtline{"><span title=\"Sign off this traveler\">"{text{"</span></a></b></td></tr>":
 ::prtline=prtline{">"{text{"</a></b></td></tr>":
-::priority=priority+"1":
+::'priority=priority+"1":
 ::html pg tx prtline:
 nxtschd::getnext schd; goto schdlp:
 endschd:::

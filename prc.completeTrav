@@ -3,8 +3,9 @@
 :@rn ne "1":Exit:
 ::declare out_file(255,*,g):
 ::declare global startpri(4,.0) 'for setPriority, shifing all remaining items up to fill vacated item slot:
+::declare global type(3,allup):
 ::declare error:
-::declare process_id(8,.0),  travnum(20,allup), recnum(8,.0), type(3,allup):
+::declare process_id(8,.0),  travnum(20,allup), recnum(8,.0):
 ::recnum=@pw; travnum=@px; type=@py:
 ::process_id = @pm;:
 ::out_file = "/appl/fpmerge/schedcomplete_" { process_id { ".pout":
