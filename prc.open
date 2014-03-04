@@ -1,5 +1,6 @@
 :'##############################################################:'# 2013-09-18 ejl build schedule's Open list page:
 :'#                 runs via cgi-bin/sched_complete:'# 2013-12-03 ejl  add jquery for couple little effects:
+:'# 2014-03-04 ejl  ISR 26031 add table sorting::
 :@rn ne "1":exit:
 ::declare process_id(8,.0); process_id=@pm:
 ::declare global type, desc; type=@pw; desc=@px:
@@ -52,14 +53,15 @@ filldat:' fill data onto page:' only for non-Completed travs (i.e. no Date Out f
 ::html pg tx "<caption><h1 style='font-size33px'>"{text<"("{desc{")</h1></caption>":
 ::text="Priority":
 :lang eq "SP":text="Prioridad":
-::declare line; line="<tr><th>"{text{"</th>":
+::declare line; line="<tr><thread><th class='sortable-numeric fd-column-0'><a title='"{text{"' href='#'>"{text{"</a></th>":
 ::declare text2, text3:
 ::text="Assembly"; text2="Traveler/RPN"; text3="Qty":
 :lang eq "SP":text="Ensamble"; text3="Cantidad":
-::line=line{"<th>"{text{"</th><th>"{text2{"</th><th>"{text3{"</th>":
+::line=line{"<th class='sortable-text fd-column-1'><a title='"{text{"' href='#'>"{text{"</a></th>":
+::line=line{"<th>"{text2{"</th><th>"{text3{"</th>":
 ::text="Time In":
 :lang eq "SP":text="Tiempo de entrada":
-::line=line{"<th>"{text{"</th><th></th></tr>":
+::line=line{"<th class='sortable-text fd-column-4'><a title='"{text{"' href='#'>"{text{"</a></th><th></th></tr></thread>":
 ::html pg tx line:
 :                        'already coming out of filepro in correct:'declare priority(3,.0,g) 'order, this is just to make user feel good:
 :                'NOTE generating the priority on the fly here is pointless now, the records now prioritize themselves:'priority="1":
@@ -94,6 +96,7 @@ schdlp:not schd:goto endschd:
 ::html pg tx prtline:
 nxtschd::getnext schd; goto schdlp:
 endschd:::
+::html pg tx "<script type='text/javascript' src='/script/tablesort.js'></script>":
 :'close table:html pg tx "</table>":
 ::return:
 pageftr:'footer::

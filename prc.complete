@@ -1,5 +1,6 @@
 :'##############################################################:'# 2013-09-18 ejl build schedule's Completed list page:
 :'#                 runs via cgi-bin/sched_complete:'#:
+:'# 2014-03-04 ejl ISR 26031 add table sorting::
 :@rn ne "1":exit:
 ::declare process_id(8,.0); process_id=@pm:
 ::declare global type, desc; type=@pw; desc=@px:
@@ -57,8 +58,13 @@ filldat:' fill data onto page:' only for Completed travs (i.e. they have a Date 
 ::text="Assembly"; text2="Traveler/RPN"; text3="Qty";:
 ::text4="Time In"; text5="Time Out"; text6="Turnaround (HM)":
 :lang eq "SP":text="Ensamble"; text3="Cantidad";text4="Tiempo de entrada";text5="Tiempo de salida"; text6="Tiempo Terminado":
-::declare line; line="<tr><th>"{text{"</th><th>"{text2{"</th><th>"{text3{"</th>":
-::line=line{"<th>"{text4{"</th><th>"{text5{"</th><th>"{text6{"</th></tr>":
+::declare line:
+::line="<tr><thread><th class='sortable-text fd-column-0'><a title='"{text{"' href='#'>"{text{"</a></th>":
+::line=line{"<th>"{text2{"</th>":
+::line=line{"<th>"{text3{"</th>":
+::line=line{"<th class='sortable-text fd-column-3'><a title='"{text4{"' href='#'>"{text4{"</a></th>":
+::line=line{"<th class='sortable-text fd-column-4'><a title='"{text5{"' href='#'>"{text5{"</a></th>":
+::line=line{"<th>"{text6{"</th></thread></tr>":
 ::html pg tx line:
 ::'now look up completed travs:
 :   'type/date-time (recent first)   'was C:lookup schd = scheduling  k=(type)   i=H -ng:
@@ -75,6 +81,7 @@ schdlp:not schd:goto endschd:
 ::html pg tx prtline:
 nxtschd::getnext schd; goto schdlp:
 endschd:::
+::html pg tx "<script type='text/javascript' src='/script/tablesort.js'></script>":
 :'close table:html pg tx "</table>":
 ::return:
 pageftr:'footer::
