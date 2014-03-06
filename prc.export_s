@@ -1,0 +1,25 @@
+:'##############################################################:'# 2014-03-05 ejl selection set for report export via webpage:
+:'        @PM=PID, @PW=PWD+CLK, @PX=TYPE, @PY=REPORT::
+:@pm eq "" or @pw eq "" or @px eq "" or @py eq ""  'no parameters:exit:
+:errmsg ne "":end:
+::declare pwd(3,*,g), pwdclk(7,*,g):
+::declare global login(8,*,g), type(3,allup,g), report(10,allup,g):
+::declare global errmsg(100,*,g), clk(4,.0,g):
+::type=@px; report=@py:
+::pwdclk=""{@pw{"":
+:clk ne "":goto nxt:
+::pwd=mid(pwdclk,"1","3"):
+::clk=mid(pwdclk,"4","4"):
+::lookup per = person  k=(clk)  i=a -nx:
+:not per:errmsg="Clock#"<clk<"not found.";end:
+:per(12) ne pwd:errmsg="wrong password.";end:
+:per(32) eq "" or per(32) eq "UNKNOWN":errmsg="login username in personnel file is not defined; I don't know where to send the report!";end:
+::login=per(32):
+nxt:10 ne type:end:
+:report eq "OPEN" and 21 ne "":end:
+:report co "CLOSED" and 21 eq "":end:
+:report eq "CLOSED90" and 21 lt (@td - "90"):end:
+::select:
+:report eq "OPEN":sort1=5:
+:report co "CLOSED":sort1(8,mdy/,d)=21; sort2(8,time,d)=22:
+::end:

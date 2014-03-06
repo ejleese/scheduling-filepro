@@ -1,6 +1,7 @@
 :'##############################################################:'# 2013-09-18 ejl build schedule's Completed list page:
 :'#                 runs via cgi-bin/sched_complete:'#:
-:'# 2014-03-04 ejl ISR 26031 add table sorting::
+:'# 2014-03-04 ejl ISR 26031 add table sorting:'# 2014-03-04 ejl ISR 26031 add export button:
+:'# 2014-03-06 ejl removed crap tablesorter library in favor of jquery.dataTables::
 :@rn ne "1":exit:
 ::declare process_id(8,.0); process_id=@pm:
 ::declare global type, desc; type=@pw; desc=@px:
@@ -27,17 +28,22 @@ pagehdr:'build page header::
 ::html pg tx "</script>":
 ::html pg tx "<script src=\"/scheduling/javascript/jquery-1.10.2.min.js\"></script>":
 ::html pg tx "<script src=\"/scheduling/javascript/jquery.cookie.js\"></script>":
+::html pg tx "<script src=\"/scheduling/javascript/jquery.dataTables.min.js\"></script>":
 :                        'body:html pg bo:
 :'include menu "header"::
 ::includefile="/appl/www/html/scheduling/include/headermenustyle.css"; call "c_incfile":
 :'!! USES DIFFERENT INCLUDE LOGIC PROGRAM:includefile="/appl/www/html/scheduling/include/menu.html"; call "c_incfilePHP":
+::'include javascript needed:
+::declare scrtext;scrtext="<script language=\"JavaScript\" type=\"text/javascript\"":
+:        'needed for the Export button:html pg tx scrtext<"src=\"/scheduling/javascript/sched_reprioritize.js\"></script>":
+::html pg tx "<script>$(document).ready(function(){$('#table').dataTable({\"bPaginate\"false});});</script>":
 ::return:
 filldat:' fill data onto page:' only for Completed travs (i.e. they have a Date Out filled in):
 ::'first create table:
 :'and first load new style for table (menu header had different style):includefile="/appl/www/html/scheduling/include/datatablestyle.html"; call "c_incfile":
 ::includefile="/appl/www/html/scheduling/include/generalstyle.css"; call "c_incfile":
+::includefile="/appl/www/html/scheduling/include/login.html"; call "c_incfile":
 ::declare verlink, vertext:
-::'verlink="/cgi-bin/sched_complete?sched="{type{"&desc="{desc{"&version=2&lang="{lang:
 ::verlink="/scheduling/complete.php?sched="{type{"&desc="{desc{"&version=2&lang="{lang:
 ::declare text, text2, text3, text4:
 ::text4="Show"; text="past 90 days  "; text2= "All";:
@@ -45,27 +51,31 @@ filldat:' fill data onto page:' only for Completed travs (i.e. they have a Date 
 :lang eq "SP":text4="Mostrar";text="&uacuteltimos 90 d&iacuteas  "; text2="Todos"; text3="(cargara lentamente)":
 :version eq "2"          '90 day version, already here dont link:vertext="<center><h4>"{text4<text&"  |":
 :version ne "2"        'not 90 day version:vertext="<center><h4>"{text4<"<a href="{verlink{">"{text{"</a>  |  ":
-::'verlink="/cgi-bin/sched_complete?sched="{type{"&desc="{desc{"&version=1&lang="{lang:
 ::verlink="/scheduling/complete.php?sched="{type{"&desc="{desc{"&version=1&lang="{lang:
 :version eq "2"  '90 day version, so show link for All:vertext=vertext&"<a href="{verlink{">  "&text2{"</a>"<text3<"</h4></center>":
 :version ne "2"  'no link for All when we're already on it:vertext=vertext&text2<text3<"</h4></center>":
 ::html pg tx vertext:
-::html pg tx "<center><table class=\"datatable\">":
-::text="Completed":
-:lang eq "SP":text="Completado":
-::html pg tx "<caption><h1 style='font-size33px'>"{text<"("{desc{")</h1></caption>":
+::text="Completed"; text2="Export":
+:lang eq "SP":text="Completado"; text2="Exportar":
+::declare report; report="Closed90":
+:version eq "1":report="ClosedAll":
+::line="<input type='button' value='"{text2:
+::line=line{"' onclick='clkLoginExp(\"show\",\""{type{"\",\""{report{"\")' style='floatright'>":
+::html pg tx "<center><h1 style='font-size33px'>"{text<"("{desc{")"{line{"</h1></center>":
+::html pg tx "<center><table class=\"datatable\" id='table'>":
 ::declare text5, text6:
 ::text="Assembly"; text2="Traveler/RPN"; text3="Qty";:
 ::text4="Time In"; text5="Time Out"; text6="Turnaround (HM)":
 :lang eq "SP":text="Ensamble"; text3="Cantidad";text4="Tiempo de entrada";text5="Tiempo de salida"; text6="Tiempo Terminado":
 ::declare line:
-::line="<tr><thread><th class='sortable-text fd-column-0'><a title='"{text{"' href='#'>"{text{"</a></th>":
+::line="<thead><tr><th>"{text{"</th>":
 ::line=line{"<th>"{text2{"</th>":
 ::line=line{"<th>"{text3{"</th>":
-::line=line{"<th class='sortable-text fd-column-3'><a title='"{text4{"' href='#'>"{text4{"</a></th>":
-::line=line{"<th class='sortable-text fd-column-4'><a title='"{text5{"' href='#'>"{text5{"</a></th>":
-::line=line{"<th>"{text6{"</th></thread></tr>":
+::line=line{"<th>"{text4{"</th>":
+::line=line{"<th>"{text5{"</th>":
+::line=line{"<th>"{text6{"</th></thead></tr>":
 ::html pg tx line:
+::html pg tx "<tbody>":
 ::'now look up completed travs:
 :   'type/date-time (recent first)   'was C:lookup schd = scheduling  k=(type)   i=H -ng:
 schdlp:not schd:goto endschd:
@@ -81,8 +91,7 @@ schdlp:not schd:goto endschd:
 ::html pg tx prtline:
 nxtschd::getnext schd; goto schdlp:
 endschd:::
-::html pg tx "<script type='text/javascript' src='/script/tablesort.js'></script>":
-:'close table:html pg tx "</table>":
+:'close table:html pg tx "</tbody></table>":
 ::return:
 pageftr:'footer::
 ::html pg br:

@@ -1,0 +1,60 @@
+:'##############################################################:'# 2014-03-05 ejl export open or completed report via webpage:
+:'##############################################################:'###      Detail Lines:
+:report eq "OPEN":exl(1)=5;exl(2)="'"{2;exl(3)=1;exl(4)=13;exl(5)=11 < 12:
+:report co "CLOSED":exl(1)="'"{2;exl(2)=3;exl(3)=13;exl(4)=11<12;exl(5)=21<22;exl(6)=31:
+::write exl:
+::end:
+@once:'##############################################################:'#:
+::declare extern type,report,login,clk,errmsg:
+::gosub deffile:
+::declare rmvst, tmpfile(50,*,g):
+::rmvst=remove(tmpfile{".tsv"):
+::rmvst=remove(tmpfile{".xls"):
+::export ascii exl = (tmpfile{".tsv")  R=\n F=\t:
+::exl(1) = "<sheet name=\""{ fn {"\">":
+::write exl:
+::exl(1) = "<head>":
+::write exl:
+::exl(1) = @FI {"/export";:
+::exl(3)=type<"Priority Scheduling report":
+::write exl:
+::exl(1)=@td < @tm:
+::write exl:
+::exl(1)=type<report:
+::write exl; exl(1)="";write exl:
+:report eq "OPEN":exl(1)="Priority";exl(2)="Assembly";exl(3)="Trav/RPN";exl(4)="Qty";exl(5)="Time In":
+:report co "CLOSED":exl(1)="Assembly";exl(2)="Trav/RPN";exl(3)="Qty";exl(4)="Time In";exl(5)="Time Out";exl(6)="Turnaround":
+::write exl:
+::exl(1) = "<freezepoint>":
+::write exl:
+::exl(1) = "<body style=1>":
+::write exl:
+::end:
+@Done:'##############################################################:'#    Xlmaker Call:
+:errmsg ne ""    'existing error from selection prc-login/email issues:goto errout:
+:@ts eq "0":errmsg="no records to select"; goto errout:
+::close exl; sync:
+::'showctr ("18") "Generating Excel":
+::rmvst=remove(tmpfile {".txt"):
+::system ">" < tmpfile {".xls":
+::system "chmod a+rw" < tmpfile {".xls":
+::xx="/usr/local/bin/xlmaker -file"< tmpfile {".tsv -desc /usr/local/bin/xlm_"{ fn <"-output"< tmpfile {".xls":
+::system xx:
+::'showctr ("18") "  E-Mailing Excel  ":
+::xx = "echo \"Attached\" | mutt -a" < tmpfile {".xls -s \"Requested Excel"{ fn {"\""< "\"`getemail"< login {"`\"":
+::system xx:
+::rmvst=remove(tmpfile {".tsv"):
+::rmvst=remove(tmpfile {".xls"):
+errout:'##############################################################:'# write return value for script:
+::gosub deffile:
+::rmvst=remove(tmpfile {".log"):
+::export ascii htm=(tmpfile{".log") R=\n F=,:
+:errmsg eq "":errmsg="Report sent to your email.":
+::htm(1)=errmsg:
+::write htm; close htm; sync:
+::' system "echo \""<type <report< login< clk<"\" | mutt -s prc.export ericl@borisch.com":
+::end:
+deffile:'::
+::pn(50,*,g) = "/tmp/"  ;  fn(50,*,g) = "scheduling-export":
+::tmpfile=pn{fn{"_"{type{report{clk:
+::return:
