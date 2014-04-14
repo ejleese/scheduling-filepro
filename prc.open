@@ -1,7 +1,7 @@
 :'##############################################################:'# 2013-09-18 ejl build schedule's Open list page:
 :'#                 runs via cgi-bin/sched_complete:'# 2013-12-03 ejl  add jquery for couple little effects:
 :'# 2014-03-04 ejl  ISR 26031 add table sorting:'# 2014-03-04 ejl ISR 26031 add export button:
-:'# 2014-03-06 EJL removed crap tablesorter code in favor of jquery.dataTables::
+:'# 2014-03-06 EJL removed tablesorter code in favor of jquery.dataTables::
 :@rn ne "1":exit:
 ::declare process_id(8,.0); process_id=@pm:
 ::declare global type, desc; type=@pw; desc=@px:
