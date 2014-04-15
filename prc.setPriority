@@ -17,10 +17,10 @@
 :startpri ne "":gosub shiftup; end        'closed out one, move the rest up:
 :recnum eq ""       'no record number passed:error="no record# passed"; goto err:
 ::declare extern type:
-::declare hot(1,yesno), priority(4,.0):
+::declare hot(1,*), priority(4,.0):
 :'get values for record being added/moved:lookup schd = scheduling  r=(recnum)  -n:
 :not schd:error = "error in scheduling lookup rec#"<recnum;goto err:
-hotsame:(hotval eq "Y" and schd(4) eq "Y") or (hotval ne "Y" and schd(4) ne "Y")        'not hot can be blank or N:':
+hotsame:hotval eq schd(4) or (hotval eq "N" and schd(4) eq "")         'not hot can be blank or N:':
 :schd(5) ne "" and newpri eq "" and hotsame       'old rec being moved, but no new priority value or hotness passed:error="error no new priority or hotval given";goto err:
 :                           'new recs have no priority, ones being changed already do:type=schd(10); hot=schd(4); priority=schd(5):
 :priority eq ""          'new record being added:goto setnew:
