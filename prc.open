@@ -1,7 +1,7 @@
 :'##############################################################:'# 2013-09-18 ejl build schedule's Open list page:
 :'#                 runs via cgi-bin/sched_complete:'# 2013-12-03 ejl  add jquery for couple little effects:
 :'# 2014-03-04 ejl  ISR 26031 add table sorting:'# 2014-03-04 ejl ISR 26031 add export button:
-:'# 2014-03-06 EJL removed tablesorter code in favor of jquery.dataTables::
+:'# 2014-03-06 EJL removed tablesorter code in favor of jquery.dataTables:'# 2014-03-06 ejl add warm priority, add in progress column:
 :@rn ne "1":exit:
 ::declare process_id(8,.0); process_id=@pm:
 ::declare global type, desc; type=@pw; desc=@px:
@@ -66,7 +66,13 @@ filldat:' fill data onto page:' only for non-Completed travs (i.e. no Date Out f
 ::line=line{"<th>"{text2{"</th><th>"{text3{"</th>":
 ::text="Time In":
 :lang eq "SP":text="Tiempo de entrada":
-::line=line{"<th>"{text{"</th><th></th></tr></thead>":
+::line=line{"<th>"{text{"</th>":
+::text="Status":
+:lang eq "SP":text="Status"      'translate:
+::line=line{"<th>"{text{"</th>":
+::text="Complete":
+:lang eq "SP":text="Completar":
+::line=line{"<th>"{text{"</th></tr></thead>":
 ::html pg tx line:
 ::html pg tx "<tbody>":
 ::'now look up open travs:
@@ -91,12 +97,19 @@ schdlp:not schd:goto endschd:
 :schd(4) eq "W"  'warm:prtline="<tr id=\"line\"><td style='background-color#F79A05'>"{loglink{"</td>":
 :schd(4) eq "N" or schd(4) eq ""         'normal:prtline="<tr id=\"line\"><td>"{loglink{"</td>":
 ::prtline=prtline{"<td>"{schd(2){"</td><td>"{schd(1){"</td><td>"{schd(13){"</td><td>"{schd(11)<"@"<timein:
+:'*********** change below to use scheduling_ctl file:'if status not found, default to ..?:
+::gosub makedrp        'gen code for drop down box for statuses:
+:':prtline=prtline{"<td style='background-color"{ddcolor{"'>"{dd{"</td>":
 ::declare signofflink;:
 :         'complete(recnum,travnum,type):signofflink="complete("{schd(@rn){",'"{schd(1){"','"{schd(10){"')":
-::prtline=prtline{"</td><td><b><a href="{thispage<" onclick=\""{signofflink{";\" style='background-colortransparent';":
+:not curlock:prtline=prtline{"</td><td><b><a href="{thispage<" onclick=\""{signofflink{";\" style='background-colortransparent';":
+:curlock         'currently selected status prevents completion:prtline=prtline{"</td><td><b><a>":
 ::text="Complete":
 :lang eq "SP":text="Completar":
-::prtline=prtline{">"{text{"</a></b></td></tr>":
+:curlock:text="<i>Locked</i>":
+:curlock and lang eq "SP":text="<i>Locked</i>":
+:not curlock:prtline=prtline{">"{text{"</a></b></td></tr>":
+:curlock:prtline=prtline{text{"</a></b></td></tr>":
 ::html pg tx prtline:
 nxtschd::getnext schd; goto schdlp:
 endschd:::
@@ -109,4 +122,19 @@ pageftr:'footer::
 ::html pg tx "<hr><div align=\"center\" style='font-size15px'>"{text{" " < @td < @tm <"</div>":
 ::html pg bo-:
 ::html pg cl:
+::return:
+makedrp:'gen code for dropbox choices for status::
+::declare ddcolor(7,*); ddcolor="":
+::dd="<select style=\"backgroundtransparent\" onchange=\"changeStatus("{schd(@rn){",this.value)\">":
+::lookup ctl = scheduling_ctl  k=("1")   i=A -nx:
+filldd:not ctl:goto enddd:
+:ctl(1) ne "1"        '1 is for code=Status:goto enddd:
+::text=ctl(3)        'english desc:
+:lang eq "SP":text=ctl(4):
+::dd=dd{"<option value="{ctl(2):
+curpick:schd(6) eq ctl(2) or (schd(6) eq "" and ctl(6) eq "Y"):dd=dd<"selected=\"selected\""; ddcolor=ctl(5);:
+curlock:curpick and ctl(7) eq "Y"        'selected status prevents completion:'       'use later:
+::dd=dd{">"{text{"</option>":
+::getnext ctl;goto filldd:
+enddd::dd=dd{"</select>":
 ::return:

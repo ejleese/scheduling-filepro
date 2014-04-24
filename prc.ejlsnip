@@ -1,0 +1,2 @@
+::html pg tx "<script src=\"/scheduling/javascript/jquery-1.10.2.min.js\"></script>":
+::html pg tx "<script src=\"/scheduling/javascript/jquery.cookie.js\"></script>":

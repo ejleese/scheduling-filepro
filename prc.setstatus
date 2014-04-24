@@ -1,0 +1,22 @@
+:'##############################################################:'# 2014-04-24 ejl change status on open item:
+:'#                runs from $pf/scheduling/prc.open ->:'#                          /scheduling/open.php:
+:'#                @pm=recnum, @pw=new status, @px=tmp filename:'#                This prc shouldn't fire if status dropdown value:
+:'#                wasn't change (javascript runs on onChange):'#:
+::'system "echo \""<@pm<@pw<@px<"\" | mutt -s prc.setstatus ericl@borisch.com":
+:@rn ne "1":end:
+:@pm eq "" or @pw eq "" or @px eq "":end:
+::declare recnum(8,.0); recnum=@pm:
+::declare newstat(1,.0); newstat=@pw:
+::declare fname; fname=@px:
+::declare msg:
+::zz=open(fname,"wc0t"):
+:zz lt "0"        'cant open file:end:
+::lookup schd = scheduling  r=(recnum)  -np:
+:not schd:msg="cant open scheduling record #"<recnum; aa=writeline(zz,msg);goto closeit:
+::lookup ctl = scheduling_ctl  k=("1"&newstat)  i=A -nx:
+:not ctl        'invalid status passed, manually typed in URL to the php script??:msg="invalid status"<newstat;aa=writeline(zz,msg);goto closeit:
+:'everything checks out, change record:schd(6)=newstat; close schd;msg="success";aa=writeline(zz,msg):
+:'do we want to log these changes? (in case someone adds/removes hold?)::
+closeit::aa=close(zz):
+::sync:
+::end:
