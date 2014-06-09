@@ -24,7 +24,7 @@ nostat:6 eq "":lookup ctl = scheduling_ctl  k=("1Y") i=B -nx:
 ::exl(1) = "<head>":
 ::write exl:
 ::exl(1) = @FI {"/export";:
-::exl(3)=type<"Priority Scheduling report":
+::exl(3)=type<"Priority Scheduling report"<getenv("PFLOC"):
 ::write exl:
 ::exl(1)=@td < @tm:
 ::write exl:
