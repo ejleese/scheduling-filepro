@@ -1,7 +1,15 @@
 :'##############################################################:'# 2014-03-05 ejl export open or completed report via webpage:
 :'##############################################################:'###      Detail Lines:
-:report eq "OPEN":exl(1)=5;exl(2)="'"{2;exl(3)=1;exl(4)=13;exl(5)=11 < 12:
-:report co "CLOSED":exl(1)="'"{2;exl(2)=3;exl(3)=13;exl(4)=11<12;exl(5)=21<22;exl(6)=31:
+:report co "CLOSED"      'writes, ends here:exl(1)="'"{2;exl(2)=3;exl(3)=13;exl(4)=11<12;exl(5)=21<22;exl(6)=31; write exl; end:
+::exl(1)=5;exl(2)="'"{2;exl(3)=1;exl(4)=13;exl(5)=11 < 12;:
+:4 eq "Y"   'they are normally blank but can be changed to Y and back to N':exl(6)=4:
+::declare status; status="":
+:'get status text if blank status, find default status::
+hasstat:6 ne ""                 '1='status' category, Y=use default:lookup ctl = scheduling_ctl  k=("1"&6) i=A -nx:
+nostat:6 eq "":lookup ctl = scheduling_ctl  k=("1Y") i=B -nx:
+:not ctl:status="????":
+:ctl:status=ctl(3):
+::exl(7)=status:
 ::write exl:
 ::end:
 @once:'##############################################################:'#:
@@ -22,7 +30,7 @@
 ::write exl:
 ::exl(1)=type<report:
 ::write exl; exl(1)="";write exl:
-:report eq "OPEN":exl(1)="Priority";exl(2)="Assembly";exl(3)="Trav/RPN";exl(4)="Qty";exl(5)="Time In":
+:report eq "OPEN":exl(1)="Priority";exl(2)="Assembly";exl(3)="Trav/RPN";exl(4)="Qty";exl(5)="Time In";exl(6)="Hot?"; exl(7)="Status":
 :report co "CLOSED":exl(1)="Assembly";exl(2)="Trav/RPN";exl(3)="Qty";exl(4)="Time In";exl(5)="Time Out";exl(6)="Turnaround":
 ::write exl:
 ::exl(1) = "<freezepoint>":
