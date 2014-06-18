@@ -26,8 +26,10 @@ otgi:schd(22) ge schd(12)              'out > in time:':
 ::schd(31)=elapsed:
 ::startpri=schd(5):
 ::schd(5)=""        'clear priority (keep it off Open list):
+::write schd      'moved from below, 6-18-14 ejl:
 :'REPRIORITIZE ALL REMAINING ITEMS...(below this item):call "setPriority":
-::write schd; close schd; error="success":
+::'write schd; close schd; error="success":
+::close schd; error="success":
 Err:'##############################################################:' skipped record update, just continue...:
 :' need to write error to outfile::
 WrtOut:'##############################################################:'#    Write results to html:
