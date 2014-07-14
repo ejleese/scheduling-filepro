@@ -9,7 +9,7 @@
 :@rn ne "1":end:
 ::declare global recnum(8,.0):
 :' recnum eq ""    'will already be set if called:' recnum=@pw     'no longer applies?:
-:'doesn't apply if called:declare global newpri(4,.0);' newpriority=@px:
+:'doesn't apply if called:declare global newpri(4,.0);' newpri=@px:
 ::declare global process_id(8,.0);' process_id=@pm:
 ::declare global userlogin(8,*):
 ::declare global hotval(1,*):
