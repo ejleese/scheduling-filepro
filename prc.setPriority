@@ -23,7 +23,8 @@
 hotsame:hotval eq schd(4) or (hotval eq "N" and schd(4) eq "")         'not hot can be blank or N:':
 :schd(5) ne "" and newpri eq "" and hotsame       'old rec being moved, but no new priority value or hotness passed:error="error no new priority or hotval given";goto err:
 :                           'new recs have no priority, ones being changed already do:type=schd(10); hot=schd(4); priority=schd(5):
-:priority eq ""          'new record being added:goto setnew:
+:schd(21) ne ""        'already completed, possible race condition:end:
+:priority eq ""                      'new record being added:goto setnew:
 :newpri eq schd(5) and hotsame  'no change in priority or hotness!:end:
 :not hotsame             'change hot level now:schd(4)=hotval:
 :newpri eq "" and not hotsame        'just changing hotness:goto dolog        'just changed, so log, end:
@@ -62,6 +63,7 @@ newcold:'set priority on new not hot record::
 ::schd(5)=cold(5)+"1":
 ::end:
 reprior:'# change priority on existing record:'        hot status does not matter here:
+:schd(21) ne ""        'already completed, possible race condition:end:
 ::gosub valnewp        'make sure newpri is within bounds:
 ::startpri= schd(5):
 :'lookup record with priority = newpri:'get its record # for use in a minute here:
@@ -86,6 +88,7 @@ repr2:'now go to beginning to remove the hole:'(we moved an item and bumped ever
 setplp:not setp:goto dolog:
 :setp(10) ne type:goto dolog:
 :setp(5) eq priority:goto nxtsetp:
+:setp(21) ne ""        'already signed out? should not be possible:goto nxtsetp:
 ::setp(5)=priority:
 nxtsetp::priority=priority+"1":
 ::getnext setp; goto setplp:
