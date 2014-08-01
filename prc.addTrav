@@ -4,13 +4,14 @@
 :'#        in parameters @pm pid (used to create the 'out' file scripts are looking for):'#                       @px trav number:
 :'#                       @py qty in (trav qty or manually entered rpn qty):'#                       @pz schedule type (SRC, TST, SOL, etc):
 :'#        runs from sched_addTrav.sh script as:'#        dreport scheduling -fp addTrav -u -sr 1 -r "$$" -rx "$1" -ry "$2" -rz "$3" >> /dev/null:
+:'# 2014-08-01 ejl isr N1020 add job:'#:
 :@rn ne "1":Exit:
 ::declare process_id(8,.0),  travnum:
 ::declare out_file(255,*,g):
 ::declare error:
 ::process_id = @pm:
 ::declare assynum(20,allup), qtyin(5,.0),  hot(1,yesno):
-::declare travqty(5,.0), type(3,allup):
+::declare travqty(5,.0), type(3,allup), jobnum(8,.0):
 ::out_file = "/appl/fpmerge/schedsrcadd_" { process_id { ".pout":
 ::declare lang; lang = getenv("LANG"):
 ::'system "echo" < lang < " | mutt -s h__val ericl@borisch.com":
@@ -25,7 +26,7 @@
 trav:'it's a traveler number::
 ::lookup tbom = tbom  k=(travnum)   i=D -nx:
 :not tbom:error="tbom lookup failure"; goto err:
-::assynum=tbom(22); travqty=tbom(32):
+::assynum=tbom(22); travqty=tbom(32); jobnum=tbom(21):
 :tbom(21) ne "":lookup job = JOB  k=(tbom(21)) i=A -nx:
 :job:hot=job(647):
 ::goto wrtout:
@@ -33,7 +34,7 @@ rpn:' it's an RPN number::
 ::rn(8,.0)=travnum:
 ::lookup rtn = rtnproduct  r=(rn)   -n:
 :not rtn:error="rtnproduct lookup failure"; goto err:
-::assynum=rtn(1); travqty=rtn(4):
+::assynum=rtn(1); travqty=rtn(4); jobnum=rtn(35):
 ::goto wrtout:
 Err:'##############################################################:' do anything? just continue...don't need all fields filled as long as traveler/qty is:
 :' we can assume at this point though that the trav# is valid:' because previous script checked, and a qty was entered:
@@ -52,6 +53,7 @@ newschd::lookup schd = scheduling  r=free  -e:
 ::schd(1)=travnum; schd(2)=assynum; schd(3)=travqty; schd(4)=hot:
 ::schd(11)=@td; schd(12)=shorttime; schd(13)=qtyin; schd(14)="" 'clk# not implemented:
 ::schd(10)=type:
+::schd(7)=jobnum:
 :'set priority:declare extern recnum; recnum=schd(@rn); call "setPriority":
 ::write schd; close schd; sync; error="success":
 wrtout2::'write response to script, will either be 'success' or an error message:

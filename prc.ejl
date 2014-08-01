@@ -1,2 +1,9 @@
 :@id ne "ericl" and @id ne "root":end:
-:10 eq "TST":10="TSD":
+:1="":end:
+:'fill job::
+::aa=""{1{"":
+:len(aa)="9":lookup tbom = tbom  k=aa   i=D -nx:
+:len(aa)="5":lookup rtn = rtnproduct  r=aa   -n:
+:tbom:7=tbom(21):
+:rtn:7=rtn(35):
+::end:

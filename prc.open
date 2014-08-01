@@ -2,6 +2,7 @@
 :'#                 runs via cgi-bin/sched_complete:'# 2013-12-03 ejl  add jquery for couple little effects:
 :'# 2014-03-04 ejl  ISR 26031 add table sorting:'# 2014-03-04 ejl ISR 26031 add export button:
 :'# 2014-03-06 EJL removed tablesorter code in favor of jquery.dataTables:'# 2014-03-06 ejl add warm priority, add in progress column:
+:'# 2014-08-01 ejl isr N1030 add job column:'#:
 :@rn ne "1":exit:
 ::declare process_id(8,.0); process_id=@pm:
 ::declare global type, desc; type=@pw; desc=@px:
@@ -59,6 +60,7 @@ filldat:' fill data onto page:' only for non-Completed travs (i.e. no Date Out f
 :lang eq "SP":text="Prioridad":
 ::declare line;:
 ::line="<thead><tr><th>"{text{"</th>":
+::line=line{"<th>Job</th>":
 ::declare text2, text3:
 ::text="Assembly"; text2="Traveler/RPN"; text3="Qty":
 :lang eq "SP":text="Ensamble"; text3="Cantidad":
@@ -97,6 +99,7 @@ schdlp:not schd:goto endschd:
 :schd(4) eq "Y"  'hot:prtline="<tr id=\"line\"><td style='background-color#FF0000'>"{loglink{"</td>":
 :schd(4) eq "W"  'warm:prtline="<tr id=\"line\"><td style='background-color#F79A05'>"{loglink{"</td>":
 :schd(4) eq "N" or schd(4) eq ""         'normal:prtline="<tr id=\"line\"><td>"{loglink{"</td>":
+:        'job:prtline=prtline{"<td>"{schd(7){"</td>":
 ::prtline=prtline{"<td>"{schd(2){"</td><td>"{schd(1){"</td><td>"{schd(13){"</td><td>"{schd(11)<"@"<timein:
 :'*********** change below to use scheduling_ctl file:'if status not found, default to ..?:
 ::gosub makedrp        'gen code for drop down box for statuses:
