@@ -79,6 +79,7 @@ filldat:' fill data onto page:' only for non-Completed travs (i.e. no Date Out f
 :        'type, priority (assumes closed items have priority wiped):lookup schd = scheduling  k=(type&"1")   i=E -ng:
 schdlp:not schd:goto endschd:
 :schd(10) ne type:goto endschd:
+:schd(5) ne "" and schd(21) ne ""        'priority + complete date. should not happen but rarely a race condition has:goto nxtschd                            'caused this. i've added safeguards to hopefully prevent. if happens, skip it:
 :schd(5) eq ""           'no priority (ie closed):goto endschd:
 :schd(21) ne ""          'has date out, closed:goto endschd:
 :'now we have open items, sorted by hot then date in (earliest first):declare prtline(3000,*):
