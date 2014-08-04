@@ -1,0 +1,9 @@
+:'##############################################################:'# 2014-08-01 ejl set hold notes:
+::'system "echo \""<@pm<@pw<"\" | mutt -s setnotes ericl@borisch.com":
+:@rn ne "1":end:
+:@pm eq "":end:
+::lookup schd = scheduling  r=(@pm) -np:
+:not schd        'should error but...:end:
+::schd(8)=@pw:
+::write schd:
+::end:
