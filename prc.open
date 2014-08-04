@@ -2,7 +2,7 @@
 :'#                 runs via cgi-bin/sched_complete:'# 2013-12-03 ejl  add jquery for couple little effects:
 :'# 2014-03-04 ejl  ISR 26031 add table sorting:'# 2014-03-04 ejl ISR 26031 add export button:
 :'# 2014-03-06 EJL removed tablesorter code in favor of jquery.dataTables:'# 2014-03-06 ejl add warm priority, add in progress column:
-:'# 2014-08-01 ejl isr N1030 add job column:'#:
+:'# 2014-08-01 ejl isr N1030 add job column:'# 2014-08-01 ejl isr 27398 add hold notes:
 :@rn ne "1":exit:
 ::declare process_id(8,.0); process_id=@pm:
 ::declare global type, desc; type=@pw; desc=@px:
@@ -22,7 +22,7 @@ pagehdr:'build page header::
 ::html pg cr outfile ti pageTitle:
 :not html        'cant create file:exit:
 ::html pg tx "<script type='text/javascript'>":
-:        'auto refresh every minute:html pg tx "var timer = setInterval('autoRefresh()', 1000*60);":
+:        'auto refresh 3 minutes:html pg tx "var timer = setInterval('autoRefresh()', 1000*60*3);":
 ::html pg tx "function autoRefresh(){self.location.reload(true);}":
 ::html pg tx "</script>":
 ::html pg tx "<script src=\"/scheduling/javascript/jquery-1.10.2.min.js\"></script>":
@@ -51,6 +51,7 @@ filldat:' fill data onto page:' only for non-Completed travs (i.e. no Date Out f
 :'and first load new style for table (menu header had different style):includefile="/appl/www/html/scheduling/include/datatablestyle.html"; call "c_incfile":
 ::includefile="/appl/www/html/scheduling/include/generalstyle.css"; call "c_incfile":
 ::includefile="/appl/www/html/scheduling/include/login.html"; call "c_incfile":
+::includefile="/appl/www/html/scheduling/include/holdtext.html"; call "c_incfile":
 ::declare text;text="Open"; text2="Export":
 :lang eq "SP":text="Abierto"; text2="Exportar":
 ::line="<input type='button' value='"{text2{"' onclick='clkLoginExp(\"show\",\""{type{"\",\"open\")' style='floatright'>":
@@ -94,7 +95,7 @@ schdlp:not schd:goto endschd:
 :hf eq ""        'normal priority could be saved as blank:hf="N":
 :        'field is actually 4,.0 but size is overkill. need padding for tablesort, being treated as a string..:declare pri(3,rjfill0);:
 ::pri=schd(5):
-:        'clkLogin('show',recnum,type,desc):loglink="<a class='loginLink' href='javascriptclkLogin(\"show\","{schd(@rn){",\""{type{"\",\""{desc{"\",\""{hf{"\");'":
+:        'clkLogin('show',recnum,type,desc,hotflag):loglink="<a class='loginLink' href='javascriptclkLogin(\"show\","{schd(@rn){",\""{type{"\",\""{desc{"\",\""{hf{"\");'":
 ::loglink=loglink{"style='background-colortransparent;'><b>"{pri{"</b></a>":
 :schd(4) eq "Y"  'hot:prtline="<tr id=\"line\"><td style='background-color#FF0000'>"{loglink{"</td>":
 :schd(4) eq "W"  'warm:prtline="<tr id=\"line\"><td style='background-color#F79A05'>"{loglink{"</td>":
@@ -110,8 +111,16 @@ schdlp:not schd:goto endschd:
 :curlock         'currently selected status prevents completion:prtline=prtline{"</td><td><b><a>":
 ::text="Complete":
 :lang eq "SP":text="Completar":
-:curlock:text="<i>Locked</i>":
-:curlock and lang eq "SP":text="<i>Locked</i>":
+::declare ilink:
+:schd(8) eq ""        'no current note:ilink="<img src=include/images/blanknote.jpg width='18' height='18'>":
+:schd(8) ne ""        'has current note:ilink="<img src=include/images/note.jpg width='18' height='18'>":
+::declare titletxt:
+:schd(8) eq "":titletxt="[click note icon to add a note]":
+:schd(8) ne "":titletxt=schd(8)<"[click note icon to edit note]":
+:curlock:text="<a class='tip' href='javascriptholdtextpop(\"show\","{schd(@rn){",\""{schd(8){"\")'":
+:curlock:text=text<"title='"{titletxt{"'>"{ilink{"</a>":
+:curlock:text=text<"<i>Locked</i>":
+:curlock and lang eq "SP":text=text<"<i>Locked</i>":
 :not curlock:prtline=prtline{">"{text{"</a></b></td></tr>":
 :curlock:prtline=prtline{text{"</a></b></td></tr>":
 ::html pg tx prtline:

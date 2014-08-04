@@ -15,7 +15,10 @@
 :not schd:msg="cant open scheduling record #"<recnum; aa=writeline(zz,msg);goto closeit:
 ::lookup ctl = scheduling_ctl  k=("1"&newstat)  i=A -nx:
 :not ctl        'invalid status passed, manually typed in URL to the php script??:msg="invalid status"<newstat;aa=writeline(zz,msg);goto closeit:
-:'everything checks out, change record:schd(6)=newstat; close schd;msg="success";aa=writeline(zz,msg):
+:schd(6)=newstat        'didnt change status:end:
+:'everything checks out, change record:schd(6)=newstat;:
+:newstat ne "3"        'not on hold, drop existing hold note:schd(8)="":
+::close schd;msg="success";aa=writeline(zz,msg):
 :'do we want to log these changes? (in case someone adds/removes hold?)::
 closeit::aa=close(zz):
 ::sync:
