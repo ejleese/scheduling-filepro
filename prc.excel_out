@@ -1,0 +1,51 @@
+:'##############################################################:'#    20140902 jac:
+:'# 2016-03-07 ejl isr 32517 change brandie emails::
+::exl(1) = 1; exl(2) ="'"&2; exl(3) = 3 ; exl(4)= 5; exl(5) = 6:
+::exl(6) = 7; exl(7) = 8; exl(8)= 10; exl(9)=11:
+::exl(10)= 12;exl(11)= 13:
+::write exl:
+::end:
+@once:'##############################################################:'#:
+::pn(50,*,g) = "/tmp/"  ;  fn(50,*,g) = "scheduling-excel_out":
+::declare rmvst:
+::rmvst=remove(pn { fn {".tsv"):
+::rmvst=remove(pn { fn {".xls"):
+::export ascii exl = (pn { fn { ".tsv")  R=\n F=\t:
+::exl(1) = "<sheet name=\""{ fn {"\">":
+::write exl:
+::exl(1) = "<head>":
+::write exl:
+::exl(1)=@td < @tm  ; exl(2) = "scheduling/excel_out":
+::write exl:
+::exl(1)="":
+::write exl:
+::exl(1)="Trav#" ; exl(2)="Part" ; exl(3)="Trav QTY":
+::exl(4)="Priority":
+::exl(5)="Status" ; exl(6)="Job#" ; exl(7)="Hold Note":
+::exl(8) ="Sched Type" ; exl(9)="Date In" ; exl(10)="Time In":
+::exl(11)="QTY In":
+::write exl:
+::exl(1) = "<freezepoint>":
+::write exl:
+::exl(1) = "<body style=1>":
+::write exl:
+::end:
+@Done:'##############################################################:'#    Xlmaker Call:
+:@ts eq "0":end:
+::close exl; sync:
+::showctr ("18") "Generating Excel":
+::rmvst=remove(pn { fn {".txt"):
+::system ">" < pn { fn {".xls":
+::system "chmod a+rw" < pn { fn {".xls":
+::xx="/usr/local/bin/xlmaker -file"< pn { fn {".tsv -desc /usr/local/bin/xlm_"{ fn <"-output"< pn { fn {".xls":
+::xx = xx < ">> /tmp/xl-log2":
+::system "echo \"" { xx { "\" > /tmp/xl-log":
+::system xx:
+::showctr ("18") "  E-Mailing Excel  ":
+::xx = "echo \"Attached\" | mutt -a" < pn { fn {".xls -s \"Requested Excel"{ fn {"\""< "\"`getemail $LOGNAME`\"":
+::declare emlz:
+::emlz="junep@borisch.com armandoh@borisch.com filepro@borisch.com":
+:@pm eq "CRON":xx = "echo \"Attached\" | mutt -a" < pn { fn {".xls -s \"Nogales Excel"{ fn {"\""<emlz:
+::system xx:
+::'export sl(50,*)="/appl/mnt/public/purchasing/corporate/fp_export/"{fn:
+::End:
