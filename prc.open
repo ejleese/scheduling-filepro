@@ -3,6 +3,7 @@
 :'# 2014-03-04 ejl  ISR 26031 add table sorting:'# 2014-03-04 ejl ISR 26031 add export button:
 :'# 2014-03-06 EJL removed tablesorter code in favor of jquery.dataTables:'# 2014-03-06 ejl add warm priority, add in progress column:
 :'# 2014-08-01 ejl isr N1030 add job column:'# 2014-08-01 ejl isr 27398 add hold notes:
+:'# 2016-03-22 ejl isr 32621 tweak date column for accurate sorting::
 :@rn ne "1":exit:
 ::declare process_id(8,.0); process_id=@pm:
 ::declare global type, desc; type=@pw; desc=@px:
@@ -101,7 +102,9 @@ schdlp:not schd:goto endschd:
 :schd(4) eq "W"  'warm:prtline="<tr id=\"line\"><td style='background-color#F79A05'>"{loglink{"</td>":
 :schd(4) eq "N" or schd(4) eq ""         'normal:prtline="<tr id=\"line\"><td>"{loglink{"</td>":
 :        'job:prtline=prtline{"<td>"{schd(7){"</td>":
-::prtline=prtline{"<td>"{schd(2){"</td><td>"{schd(1){"</td><td>"{schd(13){"</td><td>"{schd(11)<"@"<timein:
+::'prtline=prtline{"<td>"{schd(2){"</td><td>"{schd(1){"</td><td>"{schd(13){"</td><td>"{schd(11)<"@"<timein:
+::declare newdate(10,yymd/);newdate=schd(11):
+::prtline=prtline{"<td>"{schd(2){"</td><td>"{schd(1){"</td><td>"{schd(13){"</td><td>"{newdate<"@"<timein:
 :'*********** change below to use scheduling_ctl file:'if status not found, default to ..?:
 ::gosub makedrp        'gen code for drop down box for statuses:
 :':prtline=prtline{"<td style='background-color"{ddcolor{"'>"{dd{"</td>":

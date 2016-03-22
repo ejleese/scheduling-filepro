@@ -1,7 +1,7 @@
 :'##############################################################:'# 2013-09-18 ejl build schedule's Completed list page:
 :'#                 runs via cgi-bin/sched_complete:'#:
 :'# 2014-03-04 ejl ISR 26031 add table sorting:'# 2014-03-04 ejl ISR 26031 add export button:
-:'# 2014-03-06 ejl removed tablesorter library in favor of jquery.dataTables::
+:'# 2014-03-06 ejl removed tablesorter library in favor of jquery.dataTables:'# 2016-03-22 ejl isr 32621 tweak date column for accurate sorting:
 :@rn ne "1":exit:
 ::declare process_id(8,.0); process_id=@pm:
 ::declare global type, desc; type=@pw; desc=@px:
@@ -86,8 +86,11 @@ schdlp:not schd:goto endschd:
 ::declare timein, timeout:
 ::declare elapsed; elapsed=mid(schd(31),"1","7") 'drop seconds:
 ::timein=mid(schd(12),"1","5"); timeout=mid(schd(22),"1","5"):
-::prtline="<tr><td>"{schd(2){"</td><td>"{schd(1){"</td><td>"{schd(23){"</td><td>"{schd(11) < "@" <timein:
-::prtline = prtline {"</td><td>"{schd(21)<"@"<timeout {"</td><td>"{elapsed{"</td></tr>":
+::declare newdate(10,yymd/);newdate=schd(11):
+::'prtline="<tr><td>"{schd(2){"</td><td>"{schd(1){"</td><td>"{schd(23){"</td><td>"{schd(11) < "@" <timein:
+::prtline="<tr><td>"{schd(2){"</td><td>"{schd(1){"</td><td>"{schd(23){"</td><td>"{newdate < "@" <timein:
+::newdate=schd(21):
+::prtline = prtline {"</td><td>"{newdate<"@"<timeout {"</td><td>"{elapsed{"</td></tr>":
 ::html pg tx prtline:
 nxtschd::getnext schd; goto schdlp:
 endschd:::
