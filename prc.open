@@ -120,7 +120,7 @@ schdlp:not schd:goto endschd:
 :curlock:text="<a class='tip' href='javascriptholdtextpop(\"show\","{schd(@rn){",\""{schd(8){"\")'":
 :curlock:text=text<"title='"{titletxt{"'>"{ilink{"</a>":
 :curlock:text=text<"<i>Locked</i>":
-:curlock and lang eq "SP":text=text<"<i>Locked</i>":
+:curlock and lang eq "SP":'text=text<"<i>Locked</i>":
 :not curlock:prtline=prtline{">"{text{"</a></b></td></tr>":
 :curlock:prtline=prtline{text{"</a></b></td></tr>":
 ::html pg tx prtline:
