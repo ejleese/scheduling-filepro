@@ -1,7 +1,7 @@
 :'##############################################################:'# 2014-04-24 ejl change status on open item:
 :'#                runs from $pf/scheduling/prc.open ->:'#                          /scheduling/open.php:
 :'#                @pm=recnum, @pw=new status, @px=tmp filename:'#                This prc shouldn't fire if status dropdown value:
-:'#                wasn't change (javascript runs on onChange):'#:
+:'#                wasn't change (javascript runs on onChange):'# 2016-03-22 ejl isr 27492 keep notes when changing status (notes visible on all statuses now, not just hold):
 ::'system "echo \""<@pm<@pw<@px<"\" | mutt -s prc.setstatus ericl@borisch.com":
 :@rn ne "1":end:
 :@pm eq "" or @pw eq "" or @px eq "":end:
@@ -17,7 +17,7 @@
 :not ctl        'invalid status passed, manually typed in URL to the php script??:msg="invalid status"<newstat;aa=writeline(zz,msg);goto closeit:
 :schd(6)=newstat        'didnt change status:end:
 :'everything checks out, change record:schd(6)=newstat;:
-:newstat ne "3"        'not on hold, drop existing hold note:schd(8)="":
+:'newstat ne "3"        'not on hold, drop existing hold note:'schd(8)="":
 ::close schd;msg="success";aa=writeline(zz,msg):
 :'do we want to log these changes? (in case someone adds/removes hold?)::
 closeit::aa=close(zz):
