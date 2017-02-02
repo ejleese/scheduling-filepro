@@ -64,7 +64,7 @@ filldat:' fill data onto page:' only for non-Completed travs (i.e. no Date Out f
 ::line="<thead><tr><th>"{text{"</th>":
 ::line=line{"<th>Job</th>":
 ::declare text2, text3:
-::text="Assembly"; text2="Traveler/RPN"; text3="Qty":
+::text="Assembly"; text2="Trav/RPN/stk"; text3="Qty":
 :lang eq "SP":text="Ensamble"; text3="Cantidad":
 ::line=line{"<th>"{text{"</th>":
 ::line=line{"<th>"{text2{"</th><th>"{text3{"</th>":

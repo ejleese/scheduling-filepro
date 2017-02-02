@@ -64,7 +64,7 @@ filldat:' fill data onto page:' only for Completed travs (i.e. they have a Date 
 ::html pg tx "<center><h1 style='font-size33px'>"{text<"("{desc{")"{line{"</h1></center>":
 ::html pg tx "<center><table class=\"datatable\" id='table'>":
 ::declare text5, text6:
-::text="Assembly"; text2="Traveler/RPN"; text3="Qty";:
+::text="Assembly"; text2="Trav/RPN/stk"; text3="Qty";:
 ::text4="Time In"; text5="Time Out"; text6="Turnaround (HM)":
 :lang eq "SP":text="Ensamble"; text3="Cantidad";text4="Tiempo de entrada";text5="Tiempo de salida"; text6="Tiempo Terminado":
 ::declare line:

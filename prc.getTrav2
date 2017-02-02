@@ -1,4 +1,5 @@
 :'##############################################################:'#    20130917 ejl    get traveler info via sched_getTrav.sh:
+:'# 2017-02-02 ejl isr 34556 allow stock ticket entry::
 :'@rn ne "1":'Exit:
 ::declare process_id(8,.0),  travnum,   d_str:
 ::declare out_file(255,*,g), tmp_file(255,*,g), cmd:
@@ -10,6 +11,7 @@
 :travnum eq "":goto err:
 :len(travnum) ge "10" or len(travnum) eq "0" 'if len=9, trav, else assume RPN, but RPN search only holds 8 digits (@rn):goto err:
 :len(travnum) eq "9":goto trav:
+:len(travnum)="6" and travnum gt "400000"        'stock ticket:goto stktkt:
 :' len(travnum) eq "5"           '9/23/13 ejl lets not limit this length, may not always be 5:goto rpn                        'so assume anything not len=9 could be RPN#:
 ::goto err:
 trav:'it's a traveler number::
@@ -24,6 +26,12 @@ rpn:' it's an RPN number::
 ::lookup rtn = rtnproduct  r=(rn)   -n:
 :not rtn:goto err:
 ::d_str = rtn(1) {","{ rtn(4) {",,":
+::goto wrtout:
+stktkt:' it's a stock ticket::
+::rn=travnum:
+::lookup tkt = stocktkt  r=(rn) -n:
+:not tkt:goto err:
+::d_str = tkt(1) {","{ tkt(6) {",,":
 ::goto wrtout:
 Err:'##############################################################:d_str = "?,?,?,":
 WrtOut:'##############################################################:'#    Write results output HTML:

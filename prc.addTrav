@@ -4,7 +4,7 @@
 :'#        in parameters @pm pid (used to create the 'out' file scripts are looking for):'#                       @px trav number:
 :'#                       @py qty in (trav qty or manually entered rpn qty):'#                       @pz schedule type (SRC, TST, SOL, etc):
 :'#        runs from sched_addTrav.sh script as:'#        dreport scheduling -fp addTrav -u -sr 1 -r "$$" -rx "$1" -ry "$2" -rz "$3" >> /dev/null:
-:'# 2014-08-01 ejl isr N1020 add job:'#:
+:'# 2014-08-01 ejl isr N1020 add job:'# 2017-02-02 ejl isr 34556 allow stock ticket entry:
 :@rn ne "1":Exit:
 ::declare process_id(8,.0),  travnum:
 ::declare out_file(255,*,g):
@@ -21,6 +21,7 @@
 :travnum eq "":error="no traveler #"; goto err:
 :len(travnum) ge "10" or len(travnum) eq "0":error="trav# length error"; goto err:
 :len(travnum) eq "9":goto trav:
+:len(travnum)="6" and travnum gt "400000"        'stock ticket:goto stktkt:
 :' len(travnum) eq "5"            'dont assume length 5 forever:goto rpn:
 ::error="traveler length invalid"; goto err:
 trav:'it's a traveler number::
@@ -35,6 +36,12 @@ rpn:' it's an RPN number::
 ::lookup rtn = rtnproduct  r=(rn)   -n:
 :not rtn:error="rtnproduct lookup failure"; goto err:
 ::assynum=rtn(1); travqty=rtn(4); jobnum=rtn(35):
+::goto wrtout:
+stktkt:' it's a stock ticket::
+::rn=travnum:
+::lookup tkt = stocktkt  r=(rn) -n:
+:not tkt:error="stocktkt lookup failure"; goto err:
+::assynum=tkt(1); travqty=tkt(6); jobnum=tkt(5):
 ::goto wrtout:
 Err:'##############################################################:' do anything? just continue...don't need all fields filled as long as traveler/qty is:
 :' we can assume at this point though that the trav# is valid:' because previous script checked, and a qty was entered:
