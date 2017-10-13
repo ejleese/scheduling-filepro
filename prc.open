@@ -4,6 +4,9 @@
 :'# 2014-03-06 EJL removed tablesorter code in favor of jquery.dataTables:'# 2014-03-06 ejl add warm priority, add in progress column:
 :'# 2014-08-01 ejl isr N1030 add job column:'# 2014-08-01 ejl isr 27398 add hold notes:
 :'# 2016-03-22 ejl isr 32621 tweak date column for accurate sorting:'# 2016-03-22 ejl isr 27492 refactor row building to add notes to all rows not just locked ones:
+:'# 2017-10-11 ejl isr 36184 new layout and functionality for RII:'#                use- right now only shipping uses this app at all:
+:'#                and they only log in with it-they use no other:'#                part of it. RII wants their list to populate:
+:'#                with open invrs but be able to prioritize.:'#                they also need new headings..:
 :@rn ne "1":exit:
 ::declare process_id(8,.0); process_id=@pm:
 ::declare global type, desc; type=@pw; desc=@px:
@@ -23,7 +26,7 @@ pagehdr:'build page header::
 ::html pg cr outfile ti pageTitle:
 :not html        'cant create file:exit:
 ::html pg tx "<script type='text/javascript'>":
-:        'auto refresh 3 minutes:html pg tx "var timer = setInterval('autoRefresh()', 1000*60*3);":
+:        'auto refresh 5 minutes:html pg tx "var timer = setInterval('autoRefresh()', 1000*60*5);":
 ::html pg tx "function autoRefresh(){self.location.reload(true);}":
 ::html pg tx "</script>":
 ::html pg tx "<script src=\"/scheduling/javascript/jquery-1.10.2.min.js\"></script>":
@@ -58,27 +61,30 @@ filldat:' fill data onto page:' only for non-Completed travs (i.e. no Date Out f
 ::line="<input type='button' value='"{text2{"' onclick='clkLoginExp(\"show\",\""{type{"\",\"open\")' style='floatright'>":
 ::html pg tx "<center><h1 style='font-size33px'>"{text<"("{desc{")"{line{"</h1></center>":
 ::html pg tx "<br><center><table class=\"datatable\" id='table'>":
+::declare line;:
 ::text="Priority":
 :lang eq "SP":text="Prioridad":
-::declare line;:
 ::line="<thead><tr><th>"{text{"</th>":
+typerii:type="RII"                'different columns for RII specifically..:gosub riihed;goto fillda2:
+notrii:not typerii             'control which columns show up:':
+::text2="Trav/RPN/stk":
+::line=line{"<th>"{text2{"</th>":
 ::line=line{"<th>Job</th>":
 ::declare text2, text3:
-::text="Assembly"; text2="Trav/RPN/stk"; text3="Qty":
+::text="Assembly";text3="Qty":
 :lang eq "SP":text="Ensamble"; text3="Cantidad":
 ::line=line{"<th>"{text{"</th>":
-::line=line{"<th>"{text2{"</th><th>"{text3{"</th>":
+::line=line{"<th>"{text3{"</th>":
 ::text="Time In":
 :lang eq "SP":text="Tiempo de entrada":
 ::line=line{"<th>"{text{"</th>":
 ::text="Status":
-:lang eq "SP":text="Status"      'translate:
 ::line=line{"<th>"{text{"</th>":
 ::text="Complete":
 :lang eq "SP":text="Completar":
 ::line=line{"<th>"{text{"</th></tr></thead>":
 ::html pg tx line:
-::html pg tx "<tbody>":
+fillda2::html pg tx "<tbody>":
 ::'now look up open travs:
 :        'type, priority (assumes closed items have priority wiped):lookup schd = scheduling  k=(type&"1")   i=E -ng:
 schdlp:not schd:goto endschd:
@@ -86,7 +92,7 @@ schdlp:not schd:goto endschd:
 :schd(5) ne "" and schd(21) ne ""        'priority + complete date. should not happen but rarely a race condition has:goto nxtschd                            'caused this. i've added safeguards to hopefully prevent. if happens, skip it:
 :schd(5) eq ""           'no priority (ie closed):goto endschd:
 :schd(21) ne ""          'has date out, closed:goto endschd:
-:'now we have open items, sorted by hot then date in (earliest first):declare prtline(3000,*):
+:'now we have open items, sorted by priority:declare prtline(3000,*):
 ::declare timein:
 ::timein=mid(schd(12),"1","5"):
 ::declare loglink:
@@ -94,20 +100,26 @@ schdlp:not schd:goto endschd:
 ::thispage="/scheduling/open.php?sched="{type{"&desc="{desc{"&lang="{lang:
 ::hf(1,*)=schd(4):
 :hf eq ""        'normal priority could be saved as blank:hf="N":
-:        'field is actually 4,.0 but size is overkill. need padding for tablesort, being treated as a string..:declare pri(3,rjfill0);:
+:        'field is actually 4,.0 but size is overkill. need padding for tablesort, being treated as a string..:declare pri(4,rjfill0);:
 ::pri=schd(5):
-:        'clkLogin('show',recnum,type,desc,hotflag):loglink="<a class='loginLink' href='javascriptclkLogin(\"show\","{schd(@rn){",\""{type{"\",\""{desc{"\",\""{hf{"\");'":
+::declare travnum(9,allup);travnum=schd(1):
+:        'clkLogin('show',recnum,type,desc,hotflag,invr):loglink="<a class='loginLink' href='javascriptclkLogin(\"show\","{schd(@rn){",\""{type{"\",\""{desc:
+::loglink=loglink{"\",\""{hf{"\",\""{travnum{"\");'":
 ::loglink=loglink{"style='background-colortransparent;'><b>"{pri{"</b></a>":
 :schd(4) eq "Y"  'hot:prtline="<tr id=\"line\"><td style='background-color#FF0000'>"{loglink{"</td>":
 :schd(4) eq "W"  'warm:prtline="<tr id=\"line\"><td style='background-color#F79A05'>"{loglink{"</td>":
 :schd(4) eq "N" or schd(4) eq ""         'normal:prtline="<tr id=\"line\"><td>"{loglink{"</td>":
-:        'job:prtline=prtline{"<td>"{schd(7){"</td>":
-::'prtline=prtline{"<td>"{schd(2){"</td><td>"{schd(1){"</td><td>"{schd(13){"</td><td>"{schd(11)<"@"<timein:
+:                              'trav/invr/etc:prtline=prtline{"<td>"{schd(1){"</td>":
+:notrii                        'job:prtline=prtline{"<td>"{schd(7){"</td>":
 ::declare newdate(10,yymd/);newdate=schd(11):
-::prtline=prtline{"<td>"{schd(2){"</td><td>"{schd(1){"</td><td>"{schd(13){"</td><td>"{newdate<"@"<timein:
+:                                'assembly:prtline=prtline{"<td>"{schd(2){"</td>":
+:notrii                          'qty in:prtline=prtline{"<td>"{schd(13){"</td>":
+:notrii:prtline=prtline{"<td>"{newdate<"@"<timein:
 :'*********** change below to use scheduling_ctl file:'if status not found, default to ..?:
-::gosub makedrp        'gen code for drop down box for statuses:
-:'       ends cell for color coded status dropdown cell:prtline=prtline{"<td style='background-color"{ddcolor{"'>"{dd{"</td>":
+:notrii:gosub makedrp        'gen code for drop down box for statuses:
+:notrii      '       ends cell for color coded status dropdown cell:prtline=prtline{"<td style='background-color"{ddcolor{"'>"{dd{"</td>":
+:typerii                         'stage week:prtline=prtline{"<td>"{schd(29){"</td>":
+:typerii                         'invr status:prtline=prtline{"<td>"{schd(30){"</td>":
 ::declare signofflink;:
 :         'complete(recnum,travnum,type):signofflink="complete("{schd(@rn){",'"{schd(1){"','"{schd(10){"')":
 ::'begin Complete column:
@@ -160,4 +172,14 @@ curlock:curpick and ctl(7) eq "Y"        'selected status prevents completion:' 
 ::dd=dd{">"{text{"</option>":
 ::getnext ctl;goto filldd:
 enddd::dd=dd{"</select>":
+::return:
+riihed:'fill column headers for rii.::
+::text="INVR"; text2="Part Number"; text3="Stage Week":
+::line=line{"<th>"{text{"</th>":
+::line=line{"<th>"{text2{"</th><th>"{text3{"</th>":
+::text="Status":
+::line=line{"<th>"{text{"</th>":
+::text="Complete":
+::line=line{"<th>"{text{"</th></tr></thead>":
+::html pg tx line:
 ::return:

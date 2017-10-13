@@ -6,6 +6,7 @@
 :'#                New record if not hot, add to end of priority list:'#                            if hot, set priority to after first non-hot item found in priority list:
 :'#                Closed a Record after removing an item, need:'#                       to shift by -1 all items after it:
 :'#             This program will either be a Call from prc.addTrav:'#             or prc.login:
+:'# 2017-10-12 ejl isr 36184 add parameters for invr and type::
 :@rn ne "1":end:
 ::declare global recnum(8,.0):
 :' recnum eq ""    'will already be set if called:' recnum=@pw     'no longer applies?:
@@ -13,6 +14,7 @@
 ::declare global process_id(8,.0);' process_id=@pm:
 ::declare global userlogin(8,*):
 ::declare global hotval(1,*):
+::declare global invrnum(9,allup),typeval(3,allup):
 :                               'this is priority of rec just closed:declare extern startpri       'for changing all recs beyond one you just closed:
 :startpri ne "":gosub shiftup; end        'closed out one, move the rest up:
 :recnum eq ""       'no record number passed:error="no record# passed"; goto err:
@@ -20,6 +22,7 @@
 ::declare hot(1,*), priority(4,.0):
 :'get values for record being added/moved:lookup schd = scheduling  r=(recnum)  -n:
 :not schd:error = "error in scheduling lookup rec#"<recnum;goto err:
+:schd(10)&schd(1) ne type&invrnum and type ne "" and invrnum ne "":error = "error in scheduling lookup rec#"<recnum;goto err:
 hotsame:hotval eq schd(4) or (hotval eq "N" and schd(4) eq "")         'not hot can be blank or N:':
 :schd(5) ne "" and newpri eq "" and hotsame       'old rec being moved, but no new priority value or hotness passed:error="error no new priority or hotval given";goto err:
 :                           'new recs have no priority, ones being changed already do:type=schd(10); hot=schd(4); priority=schd(5):
@@ -65,6 +68,7 @@ newcold:'set priority on new not hot record::
 reprior:'# change priority on existing record:'        hot status does not matter here:
 :schd(21) ne ""        'already completed, possible race condition:end:
 ::gosub valnewp        'make sure newpri is within bounds:
+::schd(28)="Y":
 ::startpri= schd(5):
 :'lookup record with priority = newpri:'get its record # for use in a minute here:
 ::declare targpri(4,.0):
