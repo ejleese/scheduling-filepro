@@ -1,0 +1,10 @@
+:'##############################################################:'# 2017-10-13 ejl isr 36184 add new invrs to non-qual:
+:@qu ne "prep":end:
+::lookup schd = scheduling@  k=("RII"&1)  i=A -npx:
+:not schd:goto addme:
+:'update existing record with current part, yrwk, invr status:schd(2)=2;schd(29)=29;schd(30)=30;write schd:
+::end:
+addme::lookup schd = scheduling@  r=free  -n:
+:not schd:end:
+::copy schd:
+::end:

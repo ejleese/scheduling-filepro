@@ -1,0 +1,5 @@
+:'##############################################################:'# 2017-10-13 ejl isr 36184 clear RII records from non-qual:
+:@qu ne "":end:
+:10 ne "RII":end:
+::select:
+::end:

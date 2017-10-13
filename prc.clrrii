@@ -1,0 +1,8 @@
+:'##############################################################:'# 2017-10-13 ejl isr 36184 remove non-qual RII records that:
+:'                do not exist in qual prep (ie invrs that are:'                no longer open):
+:@qu ne "":end:
+:10 ne "RII":end:
+::lookup prep = scheduling@prep  k=1    i=I -nx:
+:prep:end:
+::delete:
+::end:
