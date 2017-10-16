@@ -7,6 +7,7 @@
 :'# 2017-10-11 ejl isr 36184 new layout and functionality for RII:'#                use- right now only shipping uses this app at all:
 :'#                and they only log in with it-they use no other:'#                part of it. RII wants their list to populate:
 :'#                with open invrs but be able to prioritize.:'#                they also need new headings..:
+:'# 2017-10-16 ejl isr 36184 x_late the ' and "" from notes display::
 :@rn ne "1":exit:
 ::declare process_id(8,.0); process_id=@pm:
 ::declare global type, desc; type=@pw; desc=@px:
@@ -138,7 +139,9 @@ schdlp:not schd:goto endschd:
 ::declare titletxt,holdtext;holdtext="":
 :schd(8) eq "":titletxt="[click note icon to add a note]":
 :schd(8) ne "":titletxt=schd(8)<"[click note icon to edit note]":
-:' curlock:holdtext="<a class='tip' href='javascriptholdtextpop(\"show\","{schd(@rn){",\""{schd(8){"\")'":
+::declare newnote(75,*);newnote=schd(8):
+::newnote=xlate(newnote,"\"'",""):
+:' curlock:holdtext="<a class='tip' href='javascriptholdtextpop(\"show\","{schd(@rn){",\""{newnote{"\")'":
 :' curlock:holdtext=holdtext<"title='"{titletxt{"'>"{ilink{"</a>":
 :' curlock:' holdtext=holdtext<"<i>Locked</i>":
 :'curlock and lang eq "SP":'text=text<"<i>Locked</i>":
